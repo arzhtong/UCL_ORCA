@@ -10,7 +10,7 @@ root = true
 indent_size = 4
 indent_style = space
 tab_width = 4
-
+trim_trailing_whitespace: false
 # New line preferences
 end_of_line = lf
 insert_final_newline = true
@@ -18,7 +18,8 @@ insert_final_newline = true
 #### .NET Coding Conventions ####
 dotnet_analyzer_diagnostic.severity = default
 dotnet_diagnostic.IDE0005.severity = silent
-dotnet_diagnostic.IDE0055.severity=error
+
+
 
 # Organize usings
 dotnet_separate_import_directive_groups = false
@@ -165,6 +166,14 @@ csharp_preserve_single_line_statements = true
 #### Naming styles ####
 
 # Naming rules
+dotnet_naming_rule.private_members_with_underscore.symbols  = private_fields
+dotnet_naming_rule.private_members_with_underscore.style    = prefix_underscore
+dotnet_naming_rule.private_members_with_underscore.severity = error
+dotnet_naming_symbols.private_fields.applicable_kinds           = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.prefix_underscore.capitalization = camel_case
+dotnet_naming_style.prefix_underscore.required_prefix = _
 
 dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
