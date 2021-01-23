@@ -1,20 +1,34 @@
 ﻿using Xunit;
-using Orca.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OrcaTests.Services;
 
 namespace Orca.Services
 {
     public class ConsoleEventAggregatorTests
     {
+        // Previous function - DoNothingTest()
         [Fact]
-        public void DoNothingTest()
+        public void ProcessEventLogsStudentEventAsString()
         {
-            Assert.True(true, "This test needs an implementation");
+            var logger = new InMemoryLogger<ConsoleEventAggregator>();
+            var consoleEventAggregator = new ConsoleEventAggregator(logger);
+
+            consoleEventAggregator.ProcessEvent(new Entities.StudentEvent
+            {
+                CourseID = "cid",
+                EventType = "Attendance",
+                ActivityType = "Video",
+                Timestamp = DateTime.UtcNow,
+                Student = new Entities.Student { Email = "a.b@example.com", FirstName = "a", LastName = "b", ID = " 0" }
+            });
+
+            Assert.Contains("a.b@example.com", logger.LogLines[0]);
         }
 
     }
+
 }

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Orca.Services;
 
 namespace Orca
 {
@@ -26,6 +27,8 @@ namespace Orca
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IEventAggregator, ConsoleEventAggregator>();
+            // Register the event aggregator as a service.
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
