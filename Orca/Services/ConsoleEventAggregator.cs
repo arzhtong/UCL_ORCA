@@ -51,39 +51,39 @@ namespace Orca.Services
             }
             // Secure the password.
 
-            // Authentication.
-            using (var authenticationManager = new PnP.Framework.AuthenticationManager(_azureAppId, username, securePassword))
-            using (var context = authenticationManager.GetContext(_sharepointUrl))
+            try
             {
-                context.Load(context.Web, p => p.Title);
-                await context.ExecuteQueryAsync();
-                Console.WriteLine($"Title: {context.Web.Title}");
-                
-                Microsoft.SharePoint.Client.List eventList = context.Web.Lists.GetByTitle("Test Insertion");
-                ListItemCreationInformation itemInfo = new ListItemCreationInformation();
-                ListItem eventItem = eventList.AddItem(itemInfo);
-                // Event Detailed Information.
-                eventItem["Title"] = "Event by " + studentEvent.Student.Email;
-                eventItem["CourseID"] = studentEvent.CourseID;
-                eventItem["StudentName"] = studentEvent.Student.FirstName + " (" + studentEvent.Student.LastName + ")";
-                eventItem["StudentID"] = studentEvent.Student.ID;
-                eventItem["EventType"] = studentEvent.EventType;
-                eventItem["ActivityType"] = studentEvent.ActivityType;
-                eventItem["Timestamp"] = studentEvent.Timestamp;
-
-                try
+                // Authentication.
+                using (var authenticationManager = new PnP.Framework.AuthenticationManager(_azureAppId, username, securePassword))
+                using (var context = authenticationManager.GetContext(_sharepointUrl))
                 {
+                    context.Load(context.Web, p => p.Title);
+                    await context.ExecuteQueryAsync();
+                    Console.WriteLine($"Title: {context.Web.Title}");
+                    
+                    Microsoft.SharePoint.Client.List eventList = context.Web.Lists.GetByTitle("Test Insertion");
+                    ListItemCreationInformation itemInfo = new ListItemCreationInformation();
+                    ListItem eventItem = eventList.AddItem(itemInfo);
+                    // Event Detailed Information.
+                    eventItem["Title"] = "Event by " + studentEvent.Student.Email;
+                    eventItem["CourseID"] = studentEvent.CourseID;
+                    eventItem["StudentName"] = studentEvent.Student.FirstName + " (" + studentEvent.Student.LastName + ")";
+                    eventItem["StudentID"] = studentEvent.Student.ID;
+                    eventItem["EventType"] = studentEvent.EventType;
+                    eventItem["ActivityType"] = studentEvent.ActivityType;
+                    eventItem["Timestamp"] = studentEvent.Timestamp;
+
                     eventItem.Update();
                     context.ExecuteQuery();
                     Console.WriteLine("Event has been inserted into SharePoint successful.");
 
                 }
-                catch (Exception e)
-                {
+            }
+            catch (Exception e)
+            {
                     Console.WriteLine("An Error Occurred.");
                     Console.WriteLine(e.Message);
-                }
             }
-        }
+        }    
     }
 }
