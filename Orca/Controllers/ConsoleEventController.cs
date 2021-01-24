@@ -26,11 +26,11 @@ namespace Orca.Controllers
         {
             StudentEvent testEvent = new StudentEvent
             {
-                CourseID = "comp0001",
+                CourseID = "comp0102",
                 Timestamp = DateTime.UtcNow,
                 EventType = "Engagement",
-                ActivityType = "Video",
-                Student = new Student { Email = "david.jackson@example.com", FirstName = "david", LastName = "jackson", ID = "00001" }
+                ActivityType = "Quiz",
+                Student = new Student { Email = "tom.jerry@example.com", FirstName = "Tom", LastName = "Jerry", ID = "202056789" }
             };
 
             _eventAggregator.ProcessEvent(testEvent);
@@ -38,5 +38,6 @@ namespace Orca.Controllers
             return testEvent;
             // Get response on the swagger UI.
         }
+
     }
 }

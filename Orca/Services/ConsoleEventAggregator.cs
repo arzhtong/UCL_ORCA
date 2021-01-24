@@ -12,16 +12,17 @@ using System.Globalization;
 using Microsoft.SharePoint.Client;
 using PnP.Framework;
 
-//access the url below
-//https://login.microsoftonline.com/1faf88fe-a998-4c5b-93c9-210a11d9a5c2/oauth2/v2.0/authorize?client_id=b269d983-e626-4d2d-bf17-606b0f2a93bb&scope=https://microsoft.sharepoint-df.com/AllSites.Manage&response_type=code
+
 namespace Orca.Services
 {
     
     public class ConsoleEventAggregator : IEventAggregator
     {
+        public ILogger<ConsoleEventAggregator> _logger;
+
         //the Azure app id, used for authentication
         private const string _azureAppId = "b269d983-e626-4d2d-bf17-606b0f2a93bb";
-        public ILogger<ConsoleEventAggregator> _logger;
+        private const string _sharepointUrl = "https://liveuclac.sharepoint.com/sites/ORCA";
 
         public ConsoleEventAggregator(ILogger<ConsoleEventAggregator> logger)
         {
@@ -37,34 +38,44 @@ namespace Orca.Services
 
         public async void StoreEventOnSharePoint(StudentEvent studentEvent)
         {
-            // Login Access Info, need to change before start up.
+            // Login Access Info, [[[Need to be changed before start up]]].
+            // Please access the url below before start the program.
+            // https://login.microsoftonline.com/1faf88fe-a998-4c5b-93c9-210a11d9a5c2/oauth2/v2.0/authorize?client_id=b269d983-e626-4d2d-bf17-606b0f2a93bb&scope=https://microsoft.sharepoint-df.com/AllSites.Manage&response_type=code
             string username = "username@ucl.ac.uk";
-            string password = "password";
-            string url = "https://liveuclac.sharepoint.com/sites/ORCA";
-            //string azureAppId = "b269d983-e626-4d2d-bf17-606b0f2a93bb";
+            string password = "your_password";
+
             var securePassword = new SecureString();
             foreach (char c in password)
             {
                 securePassword.AppendChar(c);
             }
+            // Secure the password.
+
+            // Authentication.
             using (var authenticationManager = new PnP.Framework.AuthenticationManager(_azureAppId, username, securePassword))
-            using (var context = authenticationManager.GetContext(url))
+            using (var context = authenticationManager.GetContext(_sharepointUrl))
             {
                 context.Load(context.Web, p => p.Title);
                 await context.ExecuteQueryAsync();
                 Console.WriteLine($"Title: {context.Web.Title}");
                 
-                Microsoft.SharePoint.Client.List myList = context.Web.Lists.GetByTitle("Test Insertion");
+                Microsoft.SharePoint.Client.List eventList = context.Web.Lists.GetByTitle("Test Insertion");
                 ListItemCreationInformation itemInfo = new ListItemCreationInformation();
-                ListItem myItem = myList.AddItem(itemInfo);
-                myItem["Title"] = "Test Item2";
-                myItem["Timestamp"] = DateTime.UtcNow;
-                Console.WriteLine(myList);
+                ListItem eventItem = eventList.AddItem(itemInfo);
+                // Event Detailed Information.
+                eventItem["Title"] = "Event by " + studentEvent.Student.Email;
+                eventItem["CourseID"] = studentEvent.CourseID;
+                eventItem["StudentName"] = studentEvent.Student.FirstName + " (" + studentEvent.Student.LastName + ")";
+                eventItem["StudentID"] = studentEvent.Student.ID;
+                eventItem["EventType"] = studentEvent.EventType;
+                eventItem["ActivityType"] = studentEvent.ActivityType;
+                eventItem["Timestamp"] = studentEvent.Timestamp;
+
                 try
                 {
-                    myItem.Update();
+                    eventItem.Update();
                     context.ExecuteQuery();
-                    Console.WriteLine("Successful.");
+                    Console.WriteLine("Event has been inserted into SharePoint successful.");
 
                 }
                 catch (Exception e)
@@ -73,9 +84,6 @@ namespace Orca.Services
                     Console.WriteLine(e.Message);
                 }
             }
-            
-        
         }
-
     }
 }
