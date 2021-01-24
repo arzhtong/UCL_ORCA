@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Orca.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,32 +12,17 @@ using System.Globalization;
 using Microsoft.SharePoint.Client;
 using PnP.Framework;
 
-
-namespace Orca.Services
+namespace Orca.Tools
 {
-    
-    public class ConsoleEventAggregator : IEventAggregator
+    public static class SharePointEventHandler
     {
-        public ILogger<ConsoleEventAggregator> _logger;
-
-        //the Azure app id, used for authentication
+        // The Azure app id, used for authentication.
         private const string _azureAppId = "b269d983-e626-4d2d-bf17-606b0f2a93bb";
         private const string _sharepointUrl = "https://liveuclac.sharepoint.com/sites/ORCA";
 
-        public ConsoleEventAggregator(ILogger<ConsoleEventAggregator> logger)
+        public static async void StoreEventOnSharePoint(StudentEvent studentEvent)
         {
-            _logger = logger;
-        }
 
-        public void ProcessEvent(StudentEvent studentEvent)
-        {
-            _logger.LogInformation(studentEvent.ToString());
-            // Starting with ClientContext, the constructor requires a URL to the server running SharePoint.
-            StoreEventOnSharePoint(studentEvent);
-        }
-
-        public async void StoreEventOnSharePoint(StudentEvent studentEvent)
-        {
             // Login Access Info, [[[Need to be changed before start up]]].
             // Please access the url below before start the program.
             // https://login.microsoftonline.com/1faf88fe-a998-4c5b-93c9-210a11d9a5c2/oauth2/v2.0/authorize?client_id=b269d983-e626-4d2d-bf17-606b0f2a93bb&scope=https://microsoft.sharepoint-df.com/AllSites.Manage&response_type=code
@@ -84,6 +69,6 @@ namespace Orca.Services
                     Console.WriteLine("An Error Occurred.");
                     Console.WriteLine(e.Message);
             }
-        }    
+        }
     }
 }

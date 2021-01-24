@@ -10,12 +10,12 @@ namespace Orca.Controllers
     // -- /api/events
     [ApiController]
     [Route("api/events")]
-    public class ConsoleEventController : ControllerBase
+    public class EventController : ControllerBase
     {
         private readonly IEventAggregator _eventAggregator;
         // IEventAggregator is the interface of console event aggregator.
 
-        public ConsoleEventController(IEventAggregator eventAggregator)
+        public EventController(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
             // Passing event aggregator to console event controller.
