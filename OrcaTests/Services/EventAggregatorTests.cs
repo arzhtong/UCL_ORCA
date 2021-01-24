@@ -15,9 +15,9 @@ namespace Orca.Services
         public void ProcessEventLogsStudentEventAsString()
         {
             var logger = new InMemoryLogger<EventAggregator>();
-            var consoleEventAggregator = new EventAggregator(logger);
+            var eventAggregator = new EventAggregator(logger);
 
-            consoleEventAggregator.ProcessEvent(new Entities.StudentEvent
+            eventAggregator.ProcessEvent(new Entities.StudentEvent
             {
                 CourseID = "cid",
                 EventType = "Attendance",
