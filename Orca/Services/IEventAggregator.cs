@@ -9,5 +9,6 @@ namespace Orca.Services
     public interface IEventAggregator
     {
         void ProcessEvent(StudentEvent studentEvent);
+        
     }
 }

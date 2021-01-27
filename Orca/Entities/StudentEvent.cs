@@ -11,6 +11,7 @@ namespace Orca.Entities
     {
         [Required]
         public String CourseID { get; init; }
+        [Required]
         public DateTime Timestamp { get; init; }
         [Required]
         public Student Student { get; init; }

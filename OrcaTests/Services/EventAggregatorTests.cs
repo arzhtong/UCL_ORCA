@@ -8,16 +8,16 @@ using OrcaTests.Services;
 
 namespace Orca.Services
 {
-    public class ConsoleEventAggregatorTests
+    public class EventAggregatorTests
     {
         // Previous function - DoNothingTest()
         [Fact]
         public void ProcessEventLogsStudentEventAsString()
         {
-            var logger = new InMemoryLogger<ConsoleEventAggregator>();
-            var consoleEventAggregator = new ConsoleEventAggregator(logger);
+            var logger = new InMemoryLogger<EventAggregator>();
+            var eventAggregator = new EventAggregator(logger);
 
-            consoleEventAggregator.ProcessEvent(new Entities.StudentEvent
+            eventAggregator.ProcessEvent(new Entities.StudentEvent
             {
                 CourseID = "cid",
                 EventType = "Attendance",
