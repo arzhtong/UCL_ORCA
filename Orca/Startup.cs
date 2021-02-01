@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Orca.Services;
+using Orca.Scheduling;
+using Orca.Tools;
 
 namespace Orca
 {
@@ -27,8 +29,19 @@ namespace Orca
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IEventAggregator, EventAggregator>();
+            services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
+
+            // Register the sharepoint manager
+            services.AddSingleton<ISharepointManager, SharepointManager>();
+
             // Register the event aggregator as a service.
+            services.AddSingleton<IEventAggregator, EventAggregator>();
+
+            // Register the course catalog and the course catalog updater background task
+            services.AddSingleton<SharepointCourseCatalog>(); // directly register as SharepointCourseCatalog for the CourseCatalogUpdater 
+            // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above
+            services.AddSingleton<ICourseCatalog>(serviceFactory => serviceFactory.GetRequiredService<SharepointCourseCatalog>());
+            services.AddHostedService<CourseCatalogUpdater>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

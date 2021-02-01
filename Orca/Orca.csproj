@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>debc293c-97a1-4b5a-ac66-b7e5fefd6aac</UserSecretsId>
   </PropertyGroup>
 	<PropertyGroup>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -11,8 +12,7 @@
 	  <WarningsAsErrors>;NU1605</WarningsAsErrors>
 	</PropertyGroup>
   <ItemGroup>
-  	<PackageReference Include="Microsoft.SharePoint.Client" Version="14.0.4762.1000" />
-    <PackageReference Include="Microsoft.SharePoint.Client.Online.CSOM" Version="15.0.4919.1000" />
+    <PackageReference Include="Microsoft.SharePointOnline.CSOM" Version="16.1.20912.12000" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
 	<PackageReference Include="PnP.Framework" Version="1.0.0" />
   </ItemGroup>
