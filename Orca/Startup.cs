@@ -30,13 +30,10 @@ namespace Orca
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
-
             // Register the sharepoint manager
             services.AddSingleton<ISharepointManager, SharepointManager>();
-
             // Register the event aggregator as a service.
             services.AddSingleton<IEventAggregator, EventAggregator>();
-
             // Register the course catalog and the course catalog updater background task
             services.AddSingleton<SharepointCourseCatalog>(); // directly register as SharepointCourseCatalog for the CourseCatalogUpdater 
             // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above

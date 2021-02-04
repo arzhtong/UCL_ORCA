@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Orca.Entities;
 using Orca.Services;
 using OrcaTests.Tools;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace OrcaTests.Services
 {
@@ -16,28 +18,42 @@ namespace OrcaTests.Services
         [Fact]
         public async Task ProcessEventStoresStudentEventOnSharepoint()
         {
-            var logger = new InMemoryLogger<EventAggregator>();
+            var eventAggregatorLogger = new InMemoryLogger<EventAggregator>();
+            var catalogLogger = new InMemoryLogger<MockSharepointCourseCatalog>();
             var mockSharepointManager = new MockSharepointManager();
-            mockSharepointManager.CreateList(EventAggregator.HARDCODED_LIST, "", new List<string>());
-            var eventAggregator = new EventAggregator(mockSharepointManager, logger);
-            
+            var settings = SharepointCourseCatalogTests.SharepointSettingsWithCourseCatalogName("CourseCatalog");
+            var courseCatalog = new MockSharepointCourseCatalog(Options.Create(settings), catalogLogger, mockSharepointManager);
+            mockSharepointManager.CreateList("Test Events 1", "", new List<string>());
+            var eventAggregator = new EventAggregator(mockSharepointManager, courseCatalog, eventAggregatorLogger);
+
             await eventAggregator.ProcessEvent(new StudentEvent
             {
-                CourseID = "cid",
+                CourseID = "COMP0101",
                 EventType = "Attendance",
                 ActivityType = "Video",
                 Timestamp = DateTime.UtcNow,
                 Student = new Student { Email = "a.b@example.com", FirstName = "a", LastName = "b", ID = " 0" }
             });
-            var itemsInSharepointList = await mockSharepointManager.GetItemsFromList(EventAggregator.HARDCODED_LIST);
-            
+            mockSharepointManager.CheckListExists("Test Events 1");
+            var list = courseCatalog.GetListNameForCourse("COMP0101");
+            var itemsInSharepointList = await mockSharepointManager.GetItemsFromList(list);
+            Assert.Equal("Test Events 1", list);
             Assert.Contains(itemsInSharepointList, item =>
             {
                 string courseId = (string)item["CourseID"];
-                return courseId == "cid";
+                return courseId == "COMP0101";
             });
+
+
+            await eventAggregator.ProcessEvent(new StudentEvent
+            {
+                CourseID = "COMP0100",
+                EventType = "Attendance",
+                ActivityType = "Video",
+                Timestamp = DateTime.UtcNow,
+                Student = new Student { Email = "a.b@example.com", FirstName = "a", LastName = "b", ID = " 0" }
+            });
+            Assert.Throws<KeyNotFoundException>(() => courseCatalog.GetListNameForCourse("COMP0100"));
         }
-
     }
-
 }

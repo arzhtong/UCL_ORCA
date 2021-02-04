@@ -54,7 +54,7 @@ namespace OrcaTests.Services
             Assert.Equal(expectedListName, actualListNameOfAddedEntry);
         }
 
-        private static SharepointSettings SharepointSettingsWithCourseCatalogName(string courseCatalogListName)
+        public static SharepointSettings SharepointSettingsWithCourseCatalogName(string courseCatalogListName)
         {
             return new SharepointSettings
             {

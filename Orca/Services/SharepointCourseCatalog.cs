@@ -65,7 +65,15 @@ namespace Orca.Services
 
         public string GetListNameForCourse(string courseId)
         {
-            return _courseIdToSharepointListNameMapping[courseId];
+            // Return course list or throw KeyNotFoundException.
+                return _courseIdToSharepointListNameMapping[courseId];
+
+           
+        }
+
+        public bool CheckCourseIdExist(string courseId)
+        {          
+            return  _courseIdToSharepointListNameMapping.ContainsKey(courseId);
         }
 
     }

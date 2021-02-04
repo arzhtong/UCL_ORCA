@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
+using Orca.Entities;
 
 namespace Orca.Tools
 {
@@ -36,7 +37,6 @@ namespace Orca.Tools
                 // Authentication.
                 using (var context = _authenticationManager.GetContext(_sharepointUrl))
                 {
-
                     Microsoft.SharePoint.Client.List eventList = context.Web.Lists.GetByTitle(listName);
                     ListItemCreationInformation itemInfo = new ListItemCreationInformation();
 
@@ -45,7 +45,6 @@ namespace Orca.Tools
                     {
                         listItemToAdd[field.Key] = field.Value;
                     }
-
                     listItemToAdd.Update();
                     await context.ExecuteQueryAsync();
                     return true;
@@ -53,7 +52,7 @@ namespace Orca.Tools
             }
             catch (Exception e)
             {
-                Console.WriteLine("An unexpected error occurred while adding an item");
+                Console.WriteLine("An unexpected error occurred while adding an item.");
                 Console.WriteLine(e.Message);
                 return false;
             }
@@ -149,8 +148,9 @@ namespace Orca.Tools
         {
             Dispose(disposing: true);
         }
-    }
 
+    }
+    
     public class SharepointListItem : Dictionary<string, object>
     {
 
@@ -168,4 +168,5 @@ namespace Orca.Tools
 
 
     }
+
 }

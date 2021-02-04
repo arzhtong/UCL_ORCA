@@ -1,11 +1,11 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Orca.Services
 {
-    interface ICourseCatalog
+    public interface ICourseCatalog
     {
         /// <summary>
         /// Returns the Sharepoint List Name associated with the given course ID
@@ -14,6 +14,7 @@ namespace Orca.Services
         /// <exception cref="KeyNotFoundException">If there is no mapping for the given courseId</exception>
         /// <returns>The name of the Sharepoint List associated with the courseId</returns>
         string GetListNameForCourse(string courseId);
+        bool CheckCourseIdExist(string courseId);
         Task UpdateInMemoryMapping();
     }
 }

@@ -13,12 +13,12 @@ namespace Orca.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventAggregator _eventAggregator;
-        // IEventAggregator is the interface of console event aggregator.
+        // IEventAggregator is the interface of event aggregator.
 
         public EventController(IEventAggregator eventAggregator)
         {
+            // Passing event aggregator to event controller.
             _eventAggregator = eventAggregator;
-            // Passing event aggregator to console event controller.
         }
 
         [HttpGet]
@@ -26,11 +26,17 @@ namespace Orca.Controllers
         {
             StudentEvent testEvent = new StudentEvent
             {
-                CourseID = "comp0102",
+                CourseID = "COMP0101", // Course ID Upper case.
                 Timestamp = DateTime.UtcNow,
-                EventType = "Engagement",
-                ActivityType = "Quiz",
-                Student = new Student { Email = "tom.jerry@example.com", FirstName = "Tom", LastName = "Jerry", ID = "202056789" }
+                EventType = "Attendance",
+                ActivityType = "Video",
+                Student = new Student 
+                { 
+                    Email = "vcd.zard@example.com",
+                    FirstName = "Vcd",
+                    LastName = "Zard",
+                    ID = "202001991"
+                }
             };
 
             _eventAggregator.ProcessEvent(testEvent);

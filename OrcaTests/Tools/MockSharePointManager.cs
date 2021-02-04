@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Orca.Services;
 using Orca.Tools;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 namespace OrcaTests.Tools
 {
     /// <summary>
@@ -11,11 +15,11 @@ namespace OrcaTests.Tools
     public class MockSharepointManager : ISharepointManager
     {
         public readonly Dictionary<string, List<SharepointListItem>> mockEventList;
+        
         public MockSharepointManager()
         {
             mockEventList = new Dictionary<string, List<SharepointListItem>>();
             SetInitialItemsInList();
-
         }
         public void SetInitialItemsInList()
         {
@@ -39,6 +43,10 @@ namespace OrcaTests.Tools
                 ["StudentName"] = "Terry White"
             });
         }
+
+        
+
+
         public void PrintItems()
         {
             foreach (var field in mockEventList)
@@ -78,7 +86,8 @@ namespace OrcaTests.Tools
         }
 
         /// <summary>
-        /// Creates a new Sharepoint List. The description and fieldsAsXml params can be anything as they aren't used in this mock
+        /// Creates a new Sharepoint List. The description and fieldsAsXml params can be anything as they aren't used in
+        /// this mock
         /// </summary>
         /// <param name="listName">Name of the list to create</param>
         /// <param name="description">Not used, can be anything</param>
@@ -90,6 +99,38 @@ namespace OrcaTests.Tools
 
         public void Dispose()
         {
+        }
+    }
+
+    public class MockSharepointCourseCatalog : ICourseCatalog
+    {
+        public readonly Dictionary<string, string> mockCatalog;
+
+        public MockSharepointCourseCatalog(IOptions<SharepointSettings> sharepointSettings, ILogger<MockSharepointCourseCatalog> logger, ISharepointManager sharepointManager)
+        {
+            mockCatalog = new Dictionary<string, string>();
+            SetInitialCatalogList();
+        }
+
+        public void SetInitialCatalogList()
+        {
+            mockCatalog.Add("COMP0101", "Test Events 1");
+            mockCatalog.Add("COMP0102", "Test Events 1");
+            mockCatalog.Add("MATH0055", "Test Events 2");
+        }
+
+        public string GetListNameForCourse(string courseId)
+        {
+                return mockCatalog[courseId];
+        }
+        public bool CheckCourseIdExist(string courseId)
+        {
+            return mockCatalog.ContainsKey(courseId);
+        }
+
+        public async Task UpdateInMemoryMapping()
+        {
+            return;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Orca.Scheduling
             _logger = logger;
             _catalog = catalog;
         }
-        //Executes the scheduler in the background. It uses a cancellation token to stop the scheduler at a fixed time period
+        // Executes the scheduler in the background. It uses a cancellation token to stop the scheduler at a fixed time period
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation($"CourseCatalogUpdater is starting.");
