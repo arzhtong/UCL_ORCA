@@ -10,19 +10,26 @@ namespace Orca.Entities
     public class StudentEvent
     {
         [Required]
-        public String CourseID { get; init; }
+        public string CourseID { get; init; }
         [Required]
         public DateTime Timestamp { get; init; }
         [Required]
         public Student Student { get; init; }
         [Required]
-        public String EventType { get; init; }
-        public String ActivityType { get; init; }
+        public EventType EventType { get; init; }
+        public string ActivityName { get; init; }
+        public string ActivityType { get; init; }
 
         public override string ToString()
         {
-            return $"{{CourseID: {CourseID}, Student: {{ {Student} }}, EventType: {EventType}, ActivityType: {ActivityType}, Timestamp: {Timestamp} }}";
+            return $"{{CourseID: {CourseID}, Student: {{ {Student} }}, EventType: {EventType}, ActivityType: {ActivityType}, ActivityName: {ActivityName}, Timestamp: {Timestamp} }}";
         }
 
+    }
+
+    public enum EventType
+    {
+        Engagement,
+        Attendance
     }
 }

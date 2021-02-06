@@ -28,8 +28,9 @@ namespace Orca.Controllers
             {
                 CourseID = "COMP0101", // Course ID Upper case.
                 Timestamp = DateTime.UtcNow,
-                EventType = "Attendance",
+                EventType = EventType.Attendance,
                 ActivityType = "Video",
+                ActivityName = "Weekly Lecture",
                 Student = new Student 
                 { 
                     Email = "vcd.zard@example.com",

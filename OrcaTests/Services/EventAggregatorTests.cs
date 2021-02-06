@@ -7,53 +7,97 @@ using System.Threading.Tasks;
 using Orca.Entities;
 using Orca.Services;
 using OrcaTests.Tools;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
 
 namespace OrcaTests.Services
 {
     public class EventAggregatorTests
     {
-        // Previous function - DoNothingTest()
         [Fact]
-        public async Task ProcessEventStoresStudentEventOnSharepoint()
+        public async Task ProcessEventStoresAttendanceEventOnSharepoint()
         {
-            var eventAggregatorLogger = new InMemoryLogger<EventAggregator>();
-            var catalogLogger = new InMemoryLogger<MockSharepointCourseCatalog>();
             var mockSharepointManager = new MockSharepointManager();
-            var settings = SharepointCourseCatalogTests.SharepointSettingsWithCourseCatalogName("CourseCatalog");
-            var courseCatalog = new MockSharepointCourseCatalog(Options.Create(settings), catalogLogger, mockSharepointManager);
-            mockSharepointManager.CreateList("Test Events 1", "", new List<string>());
-            var eventAggregator = new EventAggregator(mockSharepointManager, courseCatalog, eventAggregatorLogger);
+            var courseCatalog = new MockSharepointCourseCatalog();
+            string courseId = "COMP0101";
+            string listToStoreEvents = "Attendance Events";
+            courseCatalog.mockCatalog.Add(courseId, listToStoreEvents);
+            mockSharepointManager.CreateList(listToStoreEvents, "", new List<string>());
 
-            await eventAggregator.ProcessEvent(new StudentEvent
+            var eventAggregator = new EventAggregator(mockSharepointManager, courseCatalog, new InMemoryLogger<EventAggregator>());
+
+            StudentEvent eventToStore = new StudentEvent
             {
-                CourseID = "COMP0101",
-                EventType = "Attendance",
+                CourseID = courseId,
+                EventType = EventType.Attendance,
+                ActivityType = "Video",
+                ActivityName = "Introductory Lesson",
+                Timestamp = DateTime.UtcNow,
+                Student = new Student { Email = "a.b@example.com", FirstName = "a", LastName = "b", ID = " 0" }
+            };
+            await eventAggregator.ProcessEvent(eventToStore);
+
+
+            var itemsInSharepointList = await mockSharepointManager.GetItemsFromList(listToStoreEvents);
+            Assert.Single(itemsInSharepointList);
+            var itemInList = itemsInSharepointList[0];
+            Assert.Equal(eventToStore.CourseID, (string) itemInList["CourseID"]);
+            Assert.Equal(eventToStore.Student.Email, (string) itemInList["StudentEmail"]);
+            Assert.Equal(eventToStore.EventType.ToString(), (string) itemInList["EventType"]);
+            Assert.Equal(eventToStore.ActivityType, (string) itemInList["ActivityType"]);
+            Assert.Equal(eventToStore.ActivityName, (string) itemInList["ActivityName"]);
+            Assert.Equal(eventToStore.Timestamp, (DateTime) itemInList["Timestamp"]);
+        }
+
+
+        [Fact]
+        public async Task ProcessEventIgnoresAttendanceEventIfNotFoundInCourseCatalog()
+        {
+            var mockSharepointManager = new MockSharepointManager();
+            var emptyCourseCatalog = new MockSharepointCourseCatalog();
+            const string listToStoreEvents = "Attendance Events";
+            mockSharepointManager.CreateList(listToStoreEvents, "", new List<string>());
+            const string courseIdNotInCatalog = "COMP0101";
+
+            var eventAggregator = new EventAggregator(mockSharepointManager, emptyCourseCatalog, new InMemoryLogger<EventAggregator>());
+
+            StudentEvent eventToStore = new StudentEvent
+            {
+                CourseID = courseIdNotInCatalog,
+                EventType = EventType.Attendance,
                 ActivityType = "Video",
                 Timestamp = DateTime.UtcNow,
                 Student = new Student { Email = "a.b@example.com", FirstName = "a", LastName = "b", ID = " 0" }
-            });
-            mockSharepointManager.CheckListExists("Test Events 1");
-            var list = courseCatalog.GetListNameForCourse("COMP0101");
-            var itemsInSharepointList = await mockSharepointManager.GetItemsFromList(list);
-            Assert.Equal("Test Events 1", list);
-            Assert.Contains(itemsInSharepointList, item =>
-            {
-                string courseId = (string)item["CourseID"];
-                return courseId == "COMP0101";
-            });
+            };
+            await eventAggregator.ProcessEvent(eventToStore);
 
+            var itemsInSharepointList = await mockSharepointManager.GetItemsFromList(listToStoreEvents);
+            Assert.Empty(itemsInSharepointList);
+        }
 
-            await eventAggregator.ProcessEvent(new StudentEvent
+        [Fact]
+        public async Task ProcessEventDoesNotStoreEngagementEventOnSharepoint()
+        {
+            var mockSharepointManager = new MockSharepointManager();
+            var courseCatalog = new MockSharepointCourseCatalog();
+            string courseId = "COMP0101";
+            string listToStoreEvents = "Attendance Events";
+            courseCatalog.mockCatalog.Add(courseId, listToStoreEvents);
+            mockSharepointManager.CreateList(listToStoreEvents, "", new List<string>());
+
+            var eventAggregator = new EventAggregator(mockSharepointManager, courseCatalog, new InMemoryLogger<EventAggregator>());
+
+            StudentEvent engagementEvent = new StudentEvent
             {
-                CourseID = "COMP0100",
-                EventType = "Attendance",
+                CourseID = courseId,
+                EventType = EventType.Engagement,
                 ActivityType = "Video",
                 Timestamp = DateTime.UtcNow,
                 Student = new Student { Email = "a.b@example.com", FirstName = "a", LastName = "b", ID = " 0" }
-            });
-            Assert.Throws<KeyNotFoundException>(() => courseCatalog.GetListNameForCourse("COMP0100"));
+            };
+            await eventAggregator.ProcessEvent(engagementEvent);
+
+
+            var itemsInSharepointList = await mockSharepointManager.GetItemsFromList(listToStoreEvents);
+            Assert.Empty(itemsInSharepointList);
         }
     }
 }

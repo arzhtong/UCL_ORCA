@@ -19,33 +19,7 @@ namespace OrcaTests.Tools
         public MockSharepointManager()
         {
             mockEventList = new Dictionary<string, List<SharepointListItem>>();
-            SetInitialItemsInList();
         }
-        public void SetInitialItemsInList()
-        {
-            mockEventList.Add("Announcements", new List<SharepointListItem>());
-            mockEventList["Announcements"].Add(new SharepointListItem()
-            {
-                ["Course"] = "Comp102",
-                ["StudentName"] = "Terry White"
-            });
-            mockEventList["Announcements"].Add(new SharepointListItem()
-            {
-                ["Course"] = "Comp104",
-                ["StudentName"] = "Bill Burner"
-            });
-
-            mockEventList.Add("Information", new List<SharepointListItem>());
-            mockEventList["Information"].Add(new SharepointListItem());
-            mockEventList["Information"].Add(new SharepointListItem()
-            {
-                ["Course"] = "Comp103",
-                ["StudentName"] = "Terry White"
-            });
-        }
-
-        
-
 
         public void PrintItems()
         {
@@ -106,17 +80,9 @@ namespace OrcaTests.Tools
     {
         public readonly Dictionary<string, string> mockCatalog;
 
-        public MockSharepointCourseCatalog(IOptions<SharepointSettings> sharepointSettings, ILogger<MockSharepointCourseCatalog> logger, ISharepointManager sharepointManager)
+        public MockSharepointCourseCatalog()
         {
             mockCatalog = new Dictionary<string, string>();
-            SetInitialCatalogList();
-        }
-
-        public void SetInitialCatalogList()
-        {
-            mockCatalog.Add("COMP0101", "Test Events 1");
-            mockCatalog.Add("COMP0102", "Test Events 1");
-            mockCatalog.Add("MATH0055", "Test Events 2");
         }
 
         public string GetListNameForCourse(string courseId)

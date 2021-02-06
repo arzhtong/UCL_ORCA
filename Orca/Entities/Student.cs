@@ -6,10 +6,10 @@ namespace Orca.Entities
     public class Student
     {
         [Required]
-        public String ID { get; init; }
-        public String FirstName { get; init; }
-        public String LastName { get; init; }
-        public String Email { get; init; }
+        public string ID { get; init; }
+        public string FirstName { get; init; }
+        public string LastName { get; init; }
+        public string Email { get; init; }
 
 
         public override string ToString()

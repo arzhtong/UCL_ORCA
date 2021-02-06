@@ -33,7 +33,7 @@ namespace Orca.Services
             _logger = logger;
             var settingsValue = sharepointSettings.Value;
             _courseCatalogListName = settingsValue.CourseCatalogListName;
-            
+
             _courseIdToSharepointListNameMapping = new Dictionary<string, string>();
             _sharepointManager = sharepointManager;
 
@@ -66,14 +66,12 @@ namespace Orca.Services
         public string GetListNameForCourse(string courseId)
         {
             // Return course list or throw KeyNotFoundException.
-                return _courseIdToSharepointListNameMapping[courseId];
-
-           
+            return _courseIdToSharepointListNameMapping[courseId];
         }
 
         public bool CheckCourseIdExist(string courseId)
-        {          
-            return  _courseIdToSharepointListNameMapping.ContainsKey(courseId);
+        {
+            return _courseIdToSharepointListNameMapping.ContainsKey(courseId);
         }
 
     }
