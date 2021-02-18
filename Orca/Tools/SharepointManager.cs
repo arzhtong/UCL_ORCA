@@ -16,6 +16,7 @@ namespace Orca.Tools
         private readonly string _sharepointUrl;
         private bool _disposedValue;
         private PnP.Framework.AuthenticationManager _authenticationManager;
+
         public SharepointManager(IOptions<SharepointSettings> sharepointSettings)
         {
             var settingsVal = sharepointSettings.Value;
@@ -102,17 +103,21 @@ namespace Orca.Tools
                 listCreationInfo.Title = listName;
                 listCreationInfo.TemplateType = (int)ListTemplateType.GenericList;
                 listCreationInfo.Description = description;
+                listCreationInfo.QuickLaunchOption = QuickLaunchOptions.On;
+                // The new list is displayed on the Quick Launch of the site.
                 List catalogList = orcaSite.Lists.Add(listCreationInfo);
                 foreach (var fieldXml in fieldsAsXml)
                 {
                     catalogList.Fields.AddFieldAsXml(fieldXml, true, AddFieldOptions.DefaultValue);
                 }
 
-                // hide the default title field
-                Field titleField = orcaSite.Lists.GetByTitle(listName).Fields.GetByTitle("Title");
-                titleField.Hidden = true;
-                titleField.Required = false;
-                titleField.Update();
+                // Hide the default title field (column).
+                // When created the list, do not set the title as 'required'.
+                Field title = orcaSite.Lists.GetByTitle(listName).Fields.GetByTitle("Title");
+                title.Hidden = true;
+                title.Required = false;
+                title.Update();
+
                 var defaultListView = catalogList.DefaultView;
                 context.Load(defaultListView);
                 context.Load(defaultListView.ViewFields);
@@ -127,11 +132,24 @@ namespace Orca.Tools
                     string.Empty,
                     PnP.Framework.Enums.NavigationType.QuickLaunch);
 
-                context.ExecuteQuery();
+                // Change permissions, need to be improved.
+                // Microsoft.SharePoint.Client.List targetList = orcaSite.Lists.GetByTitle(listName);
+                // context.Load(targetList, targetListInfo => targetListInfo.HasUniqueRoleAssignments);
+                // context.ExecuteQuery();
+
+                // if (!targetList.HasUniqueRoleAssignments) {
+                //     Console.WriteLine("Target list is inheriting role assignments.");
+                //     targetList.BreakRoleInheritance(true, false);
+                // } else {
+                //     Console.WriteLine("Target list has unique role assignments.");
+                // }
+                // targetList.Update();
+                // orcaSite.Update();
+                // Console.WriteLine("Privilege modified.");
+                // await context.ExecuteQueryAsync();
             }
-
         }
-
+        
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)

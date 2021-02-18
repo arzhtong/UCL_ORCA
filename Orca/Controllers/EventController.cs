@@ -7,9 +7,9 @@ using System;
 
 namespace Orca.Controllers
 {
-    // -- /api/events
+    // -- /api/events/mock
     [ApiController]
-    [Route("api/events")]
+    [Route("api/events/mock")]
     public class EventController : ControllerBase
     {
         private readonly IEventAggregator _eventAggregator;
@@ -26,16 +26,16 @@ namespace Orca.Controllers
         {
             StudentEvent testEvent = new StudentEvent
             {
-                CourseID = "COMP0101", // Course ID Upper case.
+                CourseID = "COMP0088", // Course ID Upper case.
                 Timestamp = DateTime.UtcNow,
                 EventType = EventType.Attendance,
                 ActivityType = "Video",
                 ActivityName = "Weekly Lecture",
                 Student = new Student 
                 { 
-                    Email = "vcd.zard@example.com",
-                    FirstName = "Vcd",
-                    LastName = "Zard",
+                    Email = "zard.best@example.com",
+                    FirstName = "Zard",
+                    LastName = "Best",
                     ID = "202001991"
                 }
             };

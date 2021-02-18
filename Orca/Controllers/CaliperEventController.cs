@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Orca.Controllers
 {
-    [Route("api/events/caliper")]
     [ApiController]
-    public class CaliperEventsController : ControllerBase
+    [Route("api/events/caliper")]
+    public class CaliperEventController : ControllerBase
     {
         private readonly MoodleAdapter _moodleAdapter;
 
-        public CaliperEventsController(MoodleAdapter moodleAdapter)
+        public CaliperEventController(MoodleAdapter moodleAdapter)
         {
             _moodleAdapter = moodleAdapter;
         }
