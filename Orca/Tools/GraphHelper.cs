@@ -10,6 +10,7 @@ using Orca.Services;
 using System.Security;
 using Microsoft.Identity.Client;
 using Microsoft.Graph.Auth;
+using Microsoft.Extensions.Logging;
 
 namespace Orca.Tools
 {
@@ -18,13 +19,15 @@ namespace Orca.Tools
         private static GraphServiceClient _graphClient;
         private readonly string _appId;
         private readonly string _tenantId;
+        private ILogger<GraphHelper> _logger;
 
-        public GraphHelper(IOptions<MSGraphSettings> sharepointSettings)
+        public GraphHelper(IOptions<MSGraphSettings> msGraphSettings, ILogger<GraphHelper> logger)
         {
-            var settingsVal = sharepointSettings.Value;
+            var settingsVal = msGraphSettings.Value;
             _appId = settingsVal.AppId;
             _tenantId = settingsVal.TenantId;
             string _clientSecret = settingsVal.ClientSecret;
+            _logger = logger;
 
             // Initialize the auth provider with values from appsettings.json
             IConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplicationBuilder
@@ -39,7 +42,7 @@ namespace Orca.Tools
             _graphClient = new GraphServiceClient(authProvider);
         }
 
-        public static async Task<User> GetUserAsync(string userId)
+        public async Task<User> GetUserAsync(string userId)
         {
             try
             {
@@ -57,12 +60,12 @@ namespace Orca.Tools
             }
             catch (ServiceException ex)
             {
-                Console.WriteLine($"Error getting user: {ex.Message}");
+                _logger.LogError($"Error getting user: {ex.Message}");
                 return null;
             }
         }
 
-        public static async Task<ICallRecordSessionsCollectionPage> GetCallRecordSessions(string callId)
+        public async Task<ICallRecordSessionsCollectionPage> GetCallRecordSessions(string callId)
         {
             try
             {
@@ -76,12 +79,12 @@ namespace Orca.Tools
             }
             catch (ServiceException ex)
             {
-                Console.WriteLine($"Error getting call participants: {ex.Message}");
+                _logger.LogError($"Error getting call participants: {ex.Message}");
                 return null;
             }
         }
 
-        public static async Task<CallRecord> GetCallRecord(string callId)
+        public async Task<CallRecord> GetCallRecord(string callId)
         {
             try
             {
@@ -93,7 +96,7 @@ namespace Orca.Tools
             }
             catch (ServiceException ex)
             {
-                Console.WriteLine($"Error getting call participants: {ex.Message}");
+                _logger.LogError($"Error getting call participants: {ex.Message}");
                 return null;
             }
         }
