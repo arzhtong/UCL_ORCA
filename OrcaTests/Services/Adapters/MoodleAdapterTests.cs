@@ -66,6 +66,30 @@ namespace OrcaTests.Services.Adapters
             Assert.Empty(eventAggregator.processedEvents);
         }
 
+        [Fact]
+        public async Task ProcessEventsSetsEventTypeToAttendanceForZoomEvents()
+        {
+            var eventAggregator = new MockEventAggregator();
+            var moodleAdapter = new MoodleAdapter(eventAggregator);
+
+            CaliperActor caliperActor = new CaliperActor
+            {
+                Id = "1",
+                ActorType = "http://purl.imsglobal.org/caliper/v1/lis/Person",
+                Name = "John Doe",
+                Extensions = new CaliperActorExtensions { Email = "john.doe@example.com" }
+            };
+            string zoomActivityType = "zoom";
+            string studentRole = "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner";
+            CaliperEventBatchDto zoomEvents = EventBatch(caliperActor, "any", "http://purl.imsglobal.org/caliper/v1/lis/" + zoomActivityType, "COMP0101", MoodleAdapter.COURSE_GROUP_TYPE, studentRole);
+
+            await moodleAdapter.ProcessEvents(zoomEvents);
+
+            Assert.Single(eventAggregator.processedEvents);
+            var processedEvent = eventAggregator.processedEvents[0];
+            Assert.Equal(EventType.Attendance, processedEvent.EventType);
+        }
+
         private static CaliperEventBatchDto EventBatch(CaliperActor actor, string objectName, string objectType, string groupName, string groupType, string actorRole)
         {
             return new CaliperEventBatchDto

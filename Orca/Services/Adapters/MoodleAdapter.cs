@@ -30,7 +30,7 @@ namespace Orca.Services.Adapters
                 {
                     CourseID = caliperEvent.Group.Name,
                     //TODO don't have this hardcoded in case of live lecture links
-                    EventType = EventType.Engagement,
+                    EventType = activityTypeWithoutUrl == "zoom" ? EventType.Attendance : EventType.Engagement,
                     ActivityName = caliperEvent.Object.Name,
                     ActivityType = activityTypeWithoutUrl,
                     Student = new Student { ID = caliperEvent.Actor.Id, FirstName = studentName[0], LastName = studentName[1], Email = caliperEvent.Actor.Extensions.Email },
