@@ -34,11 +34,7 @@ namespace Orca
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
 
-            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-          
-            var msGraphSettings = new MSGraphSettings();
-            Configuration.Bind("Orca:MsGraph", msGraphSettings);
-            services.AddSingleton(msGraphSettings);
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);c
 
             //services.AddSingleton<NotificationsController>();
 
@@ -53,7 +49,10 @@ namespace Orca
             // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above
             services.AddSingleton<ICourseCatalog>(serviceFactory => serviceFactory.GetRequiredService<SharepointCourseCatalog>());
             services.AddHostedService<CourseCatalogUpdater>();
+            services.AddHostedService<MsGraphSubscriptionUpdater>();
 
+            //Register the Microsoft Graph adapter
+            services.AddSingleton<MsGraphAdapter>();
             // Register the moodle adapter
             services.AddSingleton<MoodleAdapter>();
             services.AddControllers();
