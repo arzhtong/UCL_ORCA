@@ -34,10 +34,6 @@ namespace Orca
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
 
-            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);c
-
-            //services.AddSingleton<NotificationsController>();
-
             services.AddSingleton<GraphHelper>();
             // Register the sharepoint manager
             services.AddSingleton<ISharepointManager, SharepointManager>();
