@@ -15,6 +15,7 @@ using Orca.Services;
 using Orca.Scheduling;
 using Orca.Tools;
 using Orca.Services.Adapters;
+using Orca.Controllers;
 
 namespace Orca
 {
@@ -32,6 +33,14 @@ namespace Orca
         {
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
+
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+          
+            var msGraphSettings = new MSGraphSettings();
+            Configuration.Bind("Orca:MsGraph", msGraphSettings);
+            services.AddSingleton(msGraphSettings);
+
+            //services.AddSingleton<NotificationsController>();
 
             services.AddSingleton<GraphHelper>();
             // Register the sharepoint manager

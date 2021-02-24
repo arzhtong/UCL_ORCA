@@ -26,7 +26,10 @@ namespace Orca.Services
         /// The ClientSecret registered on Azure AD
         /// </summary>
         public string ClientSecret { get; set; }
-
+        /// <summary>
+        /// Ngrok
+        /// </summary>
+        public string Ngrok { get; set; }
 
     }
 }
