@@ -64,31 +64,34 @@ namespace Orca.Controllers
                 {
                     Console.WriteLine($"Received notification: '{notification.Resource}', {notification.ResourceData?.Id}");
                     var callRecord = await _graphHelper.GetCallRecordSessions(notification.ResourceData?.Id);
-                    var joinWebUrl = callRecord.JoinWebUrl;
+                    var joinWebUrl = (callRecord != null ? callRecord.JoinWebUrl : null);
                     if (joinWebUrl == null) break;
                     foreach (Session session in callRecord.Sessions)
                     {
                         ParticipantEndpoint caller = (ParticipantEndpoint)session.Caller;
                         var user = await _graphHelper.GetUserAsync(caller.Identity.User.Id);
-                        StudentEvent studentEvent = new StudentEvent
+                        if( user != null)
                         {
-                            //TODO - Find course ID based on joinWebUrl.
-                            CourseID = "COMP0088", // Course ID Upper case.
-                            Timestamp = ((DateTimeOffset)session.StartDateTime).UtcDateTime,
-                            EventType = EventType.Attendance,
-                            ActivityType = "Meeting",
-                            ActivityName = "Weekly Lecture",
-                            Student = new Student
+                            StudentEvent studentEvent = new StudentEvent
                             {
-                                Email = user.Mail,
-                                FirstName = user.GivenName,
-                                LastName = user.Surname,
-                                //TODO - Find the mapping between this userId and the university's student ID.
-                                ID = user.Id
-                            }
-                        };
-                        Console.WriteLine(studentEvent.ToString());
-                        await _graphAdapter.ProcessEvents(studentEvent);
+                                //TODO - Find course ID based on joinWebUrl.
+                                CourseID = "COMP0088", // Course ID Upper case.
+                                Timestamp = ((DateTimeOffset)session.StartDateTime).UtcDateTime,
+                                EventType = EventType.Attendance,
+                                ActivityType = "Meeting",
+                                ActivityName = "Weekly Lecture",
+                                Student = new Student
+                                {
+                                    Email = user.Mail,
+                                    FirstName = user.GivenName,
+                                    LastName = user.Surname,
+                                    //TODO - Find the mapping between this userId and the university's student ID.
+                                    ID = user.Id
+                                }
+                            };
+                            _logger.LogDebug(studentEvent.ToString());
+                            await _graphAdapter.ProcessEvents(studentEvent);
+                        }
                     }
                 }
             }
