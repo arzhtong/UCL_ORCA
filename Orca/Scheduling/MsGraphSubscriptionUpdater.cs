@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Orca.Entities;
 using Orca.Tools;
@@ -59,7 +59,10 @@ namespace Orca.Scheduling
             if (_subscriptions.Count() == 0)
             {
                 var newSubscription = await _graphHelper.CreateSubscription(_config.Ngrok, _subscriptionMinutes);
-                _subscriptions[newSubscription.Id] = newSubscription;
+                if( newSubscription != null)
+                {
+                    _subscriptions[newSubscription.Id] = newSubscription;
+                }
             }
             else
             {
