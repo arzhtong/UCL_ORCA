@@ -19,6 +19,7 @@ namespace Orca.Scheduling
     public class MsGraphSubscriptionUpdater : BackgroundService
     {
         private const int _dELAY_TIME_MS = 5 * 60 * 1000;
+        private const int _subscriptionMinutes = 15;
         private readonly ILogger<MsGraphSubscriptionUpdater> _logger;
         private GraphHelper _graphHelper;
         private readonly MSGraphSettings _config;
@@ -57,17 +58,17 @@ namespace Orca.Scheduling
 
             if (_subscriptions.Count() == 0)
             {
-                var newSubscription = await _graphHelper.CreateSubscription(_config.Ngrok);
+                var newSubscription = await _graphHelper.CreateSubscription(_config.Ngrok, _subscriptionMinutes);
                 _subscriptions[newSubscription.Id] = newSubscription;
             }
             else
             {
                 foreach (var subscription in _subscriptions)
                 {
-                    // if the subscription expires in the next 2 min, renew it
-                    if (subscription.Value.ExpirationDateTime < DateTime.UtcNow.AddMinutes(2))
+                    // if the subscription expires in the next 5 min, renew it
+                    if (subscription.Value.ExpirationDateTime < DateTime.UtcNow.AddMinutes(5))
                     {
-                        _graphHelper.RenewSubscription(subscription.Value);
+                        _graphHelper.RenewSubscription(subscription.Value, _subscriptionMinutes);
                     }
                 }
             }

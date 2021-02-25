@@ -11,7 +11,6 @@ namespace Orca.Services.Adapters
 {
     public class MsGraphAdapter
     {
-        public const string COURSE_GROUP_TYPE = "http://purl.imsglobal.org/caliper/v1/lis/CourseSection";
         private readonly IEventAggregator _eventAggregator;
 
         public MsGraphAdapter(IEventAggregator eventAggregator, GraphHelper graphHelper)
