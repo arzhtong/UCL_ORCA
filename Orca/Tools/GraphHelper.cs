@@ -78,7 +78,7 @@ namespace Orca.Tools
             }
             catch (ServiceException ex)
             {
-                Console.WriteLine($"Error getting call record: {ex.Message}");
+                _logger.LogError($"Error getting call record: {ex.Message}");
                 return null;
             }
         }
@@ -127,7 +127,7 @@ namespace Orca.Tools
             }
             catch (ServiceException ex)
             {
-                Console.WriteLine($"Error renewing subscription: {ex.Message}");
+                _logger.LogError($"Error renewing subscription: {ex.Message}");
             }
         }
     }
