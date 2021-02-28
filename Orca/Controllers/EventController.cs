@@ -4,6 +4,7 @@ using Orca.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Orca.Database;
 
 namespace Orca.Controllers
 {
@@ -33,14 +34,13 @@ namespace Orca.Controllers
                 ActivityName = "Weekly Lecture",
                 Student = new Student 
                 { 
-                    Email = "zard.best@example.com",
-                    FirstName = "Zard",
-                    LastName = "Best",
-                    ID = "202001991"
+                    Email = "vcd.zard@example.com",
+                    FirstName = "Vcd",
+                    LastName = "Zard",
+                    ID = "202001955"
                 }
             };
-
-            _eventAggregator.ProcessEvent(testEvent);
+             _eventAggregator.ProcessEvent(testEvent);
             // Print event info in console.
             return testEvent;
             // Get response on the swagger UI.

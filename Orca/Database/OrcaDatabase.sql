@@ -14,7 +14,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema ORCA_DB
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `ORCA_DB` DEFAULT CHARACTER SET utf8 ;
+CREATE DATABASE IF NOT EXISTS `ORCA_DB` DEFAULT CHARACTER SET utf8 ;
 USE `ORCA_DB` ;
 
 -- -----------------------------------------------------
@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS `ORCA_DB`.`event` (
   `activity_name` VARCHAR(45) NULL,
   `activity_details` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `FK_event`
-    FOREIGN KEY (`student_id`)
+  CONSTRAINT `student_ID`
+    FOREIGN KEY (`student_ID`)
     REFERENCES `ORCA_DB`.`student` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)

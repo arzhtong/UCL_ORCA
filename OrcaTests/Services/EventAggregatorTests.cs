@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Orca.Entities;
 using Orca.Services;
 using OrcaTests.Tools;
-
 namespace OrcaTests.Services
 {
     public class EventAggregatorTests
@@ -103,6 +102,7 @@ namespace OrcaTests.Services
         {
             var mockSharepointManager = new MockSharepointManager();
             var courseCatalog = new MockSharepointCourseCatalog();
+           
             string courseId = "COMP0101";
             string listToStoreEvents = "Attendance Events";
             courseCatalog.mockCatalog.Add(courseId, listToStoreEvents);

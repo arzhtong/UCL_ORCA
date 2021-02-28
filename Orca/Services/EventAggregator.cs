@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using Orca.Database;
 using Orca.Entities;
 using Orca.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Options;
 namespace Orca.Services
 {
 
@@ -14,6 +15,7 @@ namespace Orca.Services
 
         private readonly ISharepointManager _sharePointManager;
         private readonly ICourseCatalog _courseCatalog;
+        private readonly DatabaseConnect _connect;
         private ILogger<EventAggregator> _logger;
 
         // Attributes of default event list.
@@ -30,7 +32,16 @@ namespace Orca.Services
             _sharePointManager = sharePointManager;
             _courseCatalog = courseCatalog;
             _logger = logger;
+
         }
+        public EventAggregator(ISharepointManager sharePointManager, ICourseCatalog courseCatalog, ILogger<EventAggregator> logger, DatabaseConnect connect)
+        {
+            _sharePointManager = sharePointManager;
+            _courseCatalog = courseCatalog;
+            _logger = logger;
+            _connect = connect;
+        }
+
 
         public async Task ProcessEvent(StudentEvent studentEvent)
         {
@@ -45,7 +56,7 @@ namespace Orca.Services
                     // Check the corresponding list of this course according to Catalog.
                     string targetList = _courseCatalog.GetListNameForCourse(studentEvent.CourseID);
                     _logger.LogInformation("Event aggregator will send event to list \"{0}\".", targetList);
-                    
+
                     // Check whether the target list exist in ORCA SharePoint.
                     // Once the list has been created successful, do the next step.
                     while (!_sharePointManager.CheckListExists(targetList))
@@ -62,15 +73,16 @@ namespace Orca.Services
                     await _sharePointManager.AddItemToList(targetList, eventItem);
                 }
 
-                // All events will then be stored in database.
-                StoreEventInDatabase(studentEvent);
-            }
-            else
-            {
-                _logger.LogInformation($"Cannot find the courseId '{studentEvent.CourseID}', event aggregator has cancelled current event.");
+                // All events will then be stored in database if have database.
+                if (_connect != null)
+                {
+                    StoreEventInDatabase(studentEvent);
+
+                }
+
+
             }
         }
-
         private List<string> CreateDefaultSharePointEventListSchema()
         {
             // Default schema of a list that store events.
@@ -107,8 +119,27 @@ namespace Orca.Services
 
         private void StoreEventInDatabase(StudentEvent studentEvent)
         {
-            // Need to be implemented.
-            _logger.LogInformation("New Student Event:\n" + studentEvent.ToString());
+
+            //Database connect
+
+            {
+                //If connect successfully,storing events to database, ignore if not.
+                if (_connect.HasDatabase())
+                {
+
+                    _connect.StoreStudentToDatabase(studentEvent);
+                    _connect.StoreEventToDatabase(studentEvent);
+                    _connect.Dispose(); 
+                }
+                else
+                {
+                    _logger.LogInformation("Do not have database, no need to store events into database");
+                }
+
+
+            }
+
         }
     }
 }
+

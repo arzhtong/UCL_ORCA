@@ -6,3 +6,7 @@ script:
   - dotnet restore 
   - dotnet build
   - dotnet test
+services:
+  - mysql
+before_install:
+  - mysql -u root --password="" < Orca/Database/OrcaDatabase.sql 

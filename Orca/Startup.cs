@@ -15,7 +15,9 @@ using Orca.Services;
 using Orca.Scheduling;
 using Orca.Tools;
 using Orca.Services.Adapters;
+using Orca.Database;
 using Orca.Controllers;
+
 
 namespace Orca
 {
@@ -33,13 +35,14 @@ namespace Orca
         {
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
-
+            services.Configure<DatabaseFields>(Configuration.GetSection("Orca:Database"));
             services.AddSingleton<GraphHelper>();
             // Register the sharepoint manager
             services.AddSingleton<ISharepointManager, SharepointManager>();
 
             // Register the event aggregator as a service.
             services.AddSingleton<IEventAggregator, EventAggregator>();
+            services.AddSingleton<DatabaseConnect>();
             // Register the course catalog and the course catalog updater background task
             services.AddSingleton<SharepointCourseCatalog>(); // directly register as SharepointCourseCatalog for the CourseCatalogUpdater 
             // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above
@@ -63,24 +66,24 @@ namespace Orca
         {
             if (env.IsDevelopment())
             {
+
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Orca v1"));
             }
-
-            if (!env.IsDevelopment())
+            else
             {
                 app.UseHttpsRedirection();
             }
+                app.UseRouting();
 
-            app.UseRouting();
+                app.UseAuthorization();
 
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });
+            
         }
     }
 }

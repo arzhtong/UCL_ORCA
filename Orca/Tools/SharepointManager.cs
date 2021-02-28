@@ -57,6 +57,7 @@ namespace Orca.Tools
                 Console.WriteLine(e.Message);
                 return false;
             }
+        
         }
 
         public async Task<List<SharepointListItem>> GetItemsFromList(string listName)
@@ -95,6 +96,7 @@ namespace Orca.Tools
         /// <inheritdoc/>
         public void CreateList(string listName, string description, List<string> fieldsAsXml)
         {
+            // Need to modify to set privilege.
             using (var context = _authenticationManager.GetContext(_sharepointUrl))
             {
                 Web orcaSite = context.Web;

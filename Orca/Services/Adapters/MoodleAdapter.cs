@@ -37,7 +37,7 @@ namespace Orca.Services.Adapters
                     Timestamp = caliperEvent.EventTime
                 };
                 await _eventAggregator.ProcessEvent(studentEvent);
-
+                
             }
         }
 
