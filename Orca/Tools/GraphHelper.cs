@@ -65,39 +65,69 @@ namespace Orca.Tools
             }
         }
 
-        public async Task<ICallRecordSessionsCollectionPage> GetCallRecordSessions(string callId)
+        public async Task<CallRecord> GetCallRecordSessions(string callId)
         {
             try
             {
                 // GET /groups/{groupId}/Members
                 return await _graphClient.Communications
                     .CallRecords[callId]
-                    .Sessions
                     .Request()
-                    .Expand("segments")
+                    .Expand("sessions")
                     .GetAsync();
             }
             catch (ServiceException ex)
             {
-                _logger.LogError($"Error getting call participants: {ex.Message}");
+                _logger.LogError($"Error getting call record: {ex.Message}");
                 return null;
             }
         }
 
-        public async Task<CallRecord> GetCallRecord(string callId)
+        public async Task<Subscription> CreateSubscription(String url, int minutes)
         {
+            var sub = new Microsoft.Graph.Subscription();
+            sub.ChangeType = "updated";
+            sub.NotificationUrl = url + "/api/notifications";
+            sub.Resource = "/communications/callRecords";
+            sub.ExpirationDateTime = DateTime.UtcNow.AddMinutes(minutes);
+            sub.ClientState = "SecretClientState";
+
             try
             {
-                // GET /communications/callRecords/{callId}
-                return await _graphClient.Communications
-                    .CallRecords[callId]
+                return await _graphClient
+                    .Subscriptions
                     .Request()
-                    .GetAsync();
+                    .AddAsync(sub);
             }
             catch (ServiceException ex)
             {
-                _logger.LogError($"Error getting call participants: {ex.Message}");
+                _logger.LogError($"Error creating subscription: {ex.Message}");
                 return null;
+            }
+        }
+
+        public async void RenewSubscription(Subscription subscription, int minutes)
+        {
+            Console.WriteLine($"Current subscription: {subscription.Id}, Expiration: {subscription.ExpirationDateTime}");
+
+            var newSubscription = new Subscription
+            {
+                ExpirationDateTime = DateTime.UtcNow.AddMinutes(minutes)
+            };
+
+            try
+            {
+                await _graphClient
+                    .Subscriptions[subscription.Id]
+                    .Request()
+                    .UpdateAsync(newSubscription);
+
+                subscription.ExpirationDateTime = newSubscription.ExpirationDateTime;
+                _logger.LogInformation($"Renewed subscription: {subscription.Id}, New Expiration: {subscription.ExpirationDateTime}");
+            }
+            catch (ServiceException ex)
+            {
+                _logger.LogError($"Error renewing subscription: {ex.Message}");
             }
         }
     }

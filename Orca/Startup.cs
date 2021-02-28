@@ -15,6 +15,7 @@ using Orca.Services;
 using Orca.Scheduling;
 using Orca.Tools;
 using Orca.Services.Adapters;
+using Orca.Controllers;
 
 namespace Orca
 {
@@ -44,7 +45,10 @@ namespace Orca
             // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above
             services.AddSingleton<ICourseCatalog>(serviceFactory => serviceFactory.GetRequiredService<SharepointCourseCatalog>());
             services.AddHostedService<CourseCatalogUpdater>();
+            services.AddHostedService<MsGraphSubscriptionUpdater>();
 
+            //Register the Microsoft Graph adapter
+            services.AddSingleton<MsGraphAdapter>();
             // Register the moodle adapter
             services.AddSingleton<MoodleAdapter>();
             services.AddControllers();
