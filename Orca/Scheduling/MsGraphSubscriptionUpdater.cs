@@ -23,7 +23,6 @@ namespace Orca.Scheduling
         private readonly ILogger<MsGraphSubscriptionUpdater> _logger;
         private GraphHelper _graphHelper;
         private readonly MSGraphSettings _config;
-        private static Dictionary<string, Subscription> _subscriptions = new Dictionary<string, Subscription>();
 
         public MsGraphSubscriptionUpdater(IOptions<MSGraphSettings> msGraphSettings,ILogger<MsGraphSubscriptionUpdater> logger, GraphHelper graphHelper)
         {
@@ -47,6 +46,12 @@ namespace Orca.Scheduling
                 await Task.Delay(_dELAY_TIME_MS, stoppingToken);
             }
 
+            var subscriptions = await _graphHelper.ListSubscriptions();
+            foreach (var subcription in subscriptions)
+            {
+                _graphHelper.DeleteSubscription(subcription.Id);
+            }
+
             _logger.LogInformation($"MsGraphSubscriptionUpdater background task is stopping.");
         }
 
@@ -54,24 +59,21 @@ namespace Orca.Scheduling
         {
 
             _logger.LogDebug($"Checking subscriptions {DateTime.Now.ToString("h:mm:ss.fff")}");
-            _logger.LogDebug($"Current subscription count {_subscriptions.Count()}");
+            var subscriptions = await _graphHelper.ListSubscriptions();
+            _logger.LogDebug($"Current subscription count {subscriptions.Count()}");
 
-            if (_subscriptions.Count() == 0)
+            if (subscriptions.Count() == 0)
             {
-                var newSubscription = await _graphHelper.CreateSubscription(_config.Ngrok, _subscriptionMinutes);
-                if( newSubscription != null)
-                {
-                    _subscriptions[newSubscription.Id] = newSubscription;
-                }
+                var newSubscription = await _graphHelper.CreateSubscription(_subscriptionMinutes);
             }
             else
             {
-                foreach (var subscription in _subscriptions)
+                foreach (var subscription in subscriptions)
                 {
                     // if the subscription expires in the next 5 min, renew it
-                    if (subscription.Value.ExpirationDateTime < DateTime.UtcNow.AddMinutes(5))
+                    if (subscription.ExpirationDateTime < DateTime.UtcNow.AddMinutes(5))
                     {
-                        _graphHelper.RenewSubscription(subscription.Value, _subscriptionMinutes);
+                        _graphHelper.RenewSubscription(subscription, _subscriptionMinutes);
                     }
                 }
             }

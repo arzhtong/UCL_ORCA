@@ -19,6 +19,7 @@ namespace Orca.Tools
         private static GraphServiceClient _graphClient;
         private readonly string _appId;
         private readonly string _tenantId;
+        private readonly string _notificationUrl;
         private ILogger<GraphHelper> _logger;
 
         public GraphHelper(IOptions<MSGraphSettings> msGraphSettings, ILogger<GraphHelper> logger)
@@ -26,6 +27,7 @@ namespace Orca.Tools
             var settingsVal = msGraphSettings.Value;
             _appId = settingsVal.AppId;
             _tenantId = settingsVal.TenantId;
+            _notificationUrl = settingsVal.Ngrok;
             string _clientSecret = settingsVal.ClientSecret;
             _logger = logger;
 
@@ -83,11 +85,11 @@ namespace Orca.Tools
             }
         }
 
-        public async Task<Subscription> CreateSubscription(String url, int minutes)
+        public async Task<Subscription> CreateSubscription(int minutes)
         {
             var sub = new Microsoft.Graph.Subscription();
             sub.ChangeType = "updated";
-            sub.NotificationUrl = url + "/api/notifications";
+            sub.NotificationUrl = _notificationUrl + "/api/notifications";
             sub.Resource = "/communications/callRecords";
             sub.ExpirationDateTime = DateTime.UtcNow.AddMinutes(minutes);
             sub.ClientState = "SecretClientState";
@@ -129,6 +131,45 @@ namespace Orca.Tools
             {
                 _logger.LogError($"Error renewing subscription: {ex.Message}");
             }
+        }
+
+        public async void DeleteSubscription(String subscriptionId)
+        {
+            try
+            {
+                await _graphClient.Subscriptions[subscriptionId]
+                    .Request()
+                    .DeleteAsync();
+            }
+            catch (ServiceException ex)
+            {
+                _logger.LogError($"Error deleting subscription: {ex.Message}");
+            }
+        }
+
+        public async Task<IGraphServiceSubscriptionsCollectionPage> ListSubscriptions()
+        {
+            try
+            {
+                var subscriptions = await _graphClient.Subscriptions
+                    .Request()
+                    .GetAsync();
+
+                foreach (Subscription subscription in subscriptions)
+                {
+                    if ((subscription.Resource != "/communications/callRecords") || (subscription.NotificationUrl != (_notificationUrl + "/api/notifications")))
+                    {
+                        subscriptions.Remove(subscription);
+                    }
+                }
+                return subscriptions;
+            }
+            catch (ServiceException ex)
+            {
+                _logger.LogError($"Error listing subscriptions: {ex.Message}");
+                return null;
+            }
+
         }
     }
 }
