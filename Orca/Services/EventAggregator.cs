@@ -77,7 +77,6 @@ namespace Orca.Services
                 if (_connect != null)
                 {
                     StoreEventInDatabase(studentEvent);
-
                 }
 
 
@@ -126,7 +125,6 @@ namespace Orca.Services
                 //If connect successfully,storing events to database, ignore if not.
                 if (_connect.HasDatabase())
                 {
-
                     _connect.StoreStudentToDatabase(studentEvent);
                     _connect.StoreEventToDatabase(studentEvent);
                     _connect.Dispose(); 
@@ -135,11 +133,7 @@ namespace Orca.Services
                 {
                     _logger.LogInformation("Do not have database, no need to store events into database");
                 }
-
-
             }
-
         }
     }
 }
-

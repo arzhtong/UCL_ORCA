@@ -27,7 +27,7 @@ namespace Orca.Controllers
         {
             StudentEvent testEvent = new StudentEvent
             {
-                CourseID = "COMP0088", // Course ID Upper case.
+                CourseID = "COMP0101", // Course ID Upper case.
                 Timestamp = DateTime.UtcNow,
                 EventType = EventType.Attendance,
                 ActivityType = "Video",

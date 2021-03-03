@@ -123,14 +123,16 @@ namespace Orca.Tools
                 var defaultListView = catalogList.DefaultView;
                 context.Load(defaultListView);
                 context.Load(defaultListView.ViewFields);
+                context.Load(catalogList, listInfo => listInfo.DefaultViewUrl);
                 context.ExecuteQuery();
                 defaultListView.ViewFields.Remove("LinkTitle");
                 defaultListView.Update();
 
                 // add a navigation link to the newly created list
+                string baseSharepointUrl = _sharepointUrl.Substring(0, _sharepointUrl.IndexOf("/sites"));
                 orcaSite.AddNavigationNode(
                     listName,
-                    new Uri($"{_sharepointUrl}/Lists/{listName}"),
+                    new Uri($"{baseSharepointUrl}{catalogList.DefaultViewUrl}"),
                     string.Empty,
                     PnP.Framework.Enums.NavigationType.QuickLaunch);
 

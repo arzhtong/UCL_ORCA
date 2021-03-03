@@ -123,8 +123,8 @@ namespace OrcaTests.Services
             };
             await eventAggregator.ProcessEvent(eventToStore);
 
-            bool afterCallCreateListEventListExist = mockSharepointManager.CheckListExists(listToStoreEvents);
-            Assert.True(afterCallCreateListEventListExist);
+            bool afterProcessEventListExist = mockSharepointManager.CheckListExists(listToStoreEvents);
+            Assert.True(afterProcessEventListExist);
         }
     }
 }
