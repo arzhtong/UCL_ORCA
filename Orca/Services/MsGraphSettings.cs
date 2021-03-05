@@ -29,7 +29,7 @@ namespace Orca.Services
         /// <summary>
         /// Ngrok
         /// </summary>
-        public string Ngrok { get; set; }
+        public string Domain { get; set; }
 
     }
 }
