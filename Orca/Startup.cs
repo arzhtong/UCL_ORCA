@@ -16,9 +16,6 @@ using Orca.Scheduling;
 using Orca.Tools;
 using Orca.Services.Adapters;
 using Orca.Database;
-using Orca.Controllers;
-
-
 namespace Orca
 {
     public class Startup
@@ -39,19 +36,15 @@ namespace Orca
             services.AddSingleton<GraphHelper>();
             // Register the sharepoint manager
             services.AddSingleton<ISharepointManager, SharepointManager>();
-
+            services.AddTransient<DatabaseConnect>();
             // Register the event aggregator as a service.
             services.AddSingleton<IEventAggregator, EventAggregator>();
-            services.AddSingleton<DatabaseConnect>();
             // Register the course catalog and the course catalog updater background task
             services.AddSingleton<SharepointCourseCatalog>(); // directly register as SharepointCourseCatalog for the CourseCatalogUpdater 
             // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above
             services.AddSingleton<ICourseCatalog>(serviceFactory => serviceFactory.GetRequiredService<SharepointCourseCatalog>());
             services.AddHostedService<CourseCatalogUpdater>();
-            services.AddHostedService<MsGraphSubscriptionUpdater>();
 
-            //Register the Microsoft Graph adapter
-            services.AddSingleton<MsGraphAdapter>();
             // Register the moodle adapter
             services.AddSingleton<MoodleAdapter>();
             services.AddControllers();
@@ -66,24 +59,24 @@ namespace Orca
         {
             if (env.IsDevelopment())
             {
-
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Orca v1"));
             }
-            else
+
+            if (!env.IsDevelopment())
             {
                 app.UseHttpsRedirection();
             }
-                app.UseRouting();
 
-                app.UseAuthorization();
+            app.UseRouting();
 
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });
-            
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

@@ -42,8 +42,10 @@ namespace Orca.Database
             }
             catch (MySqlException ex)
             {
-
-                Console.WriteLine(ex.Message);
+                if (_servername != null && _uid != null && _password != null && _database !=null)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
         public bool HasDatabase()
@@ -69,7 +71,7 @@ namespace Orca.Database
                                         };
 
          
-            Console.WriteLine("event of student {0} has been added into database", studentEvent.Student.ID);
+ 
             await AddInfoToDatabase(sql, parameters);
             
             
@@ -86,8 +88,8 @@ namespace Orca.Database
                                                         new MySqlParameter("@studentEmail", studentEvent.Student.Email)
                                                     };
     
-
-            Console.WriteLine("student: {0} {1} has been added into database", studentEvent.Student.FirstName, studentEvent.Student.LastName);
+            
+          
             await AddInfoToDatabase(sql, parameters);
          
         }
@@ -97,23 +99,37 @@ namespace Orca.Database
             
                 using (MySqlCommand cmd = new MySqlCommand(sql, Connection))
                 {
+                try
+                {
                     cmd.Parameters.AddRange(parameters);
                     cmd.ExecuteScalar();
-              
+                    Console.WriteLine("Transaction successful");
+                    
                 }
-            
+                catch(Exception e)
+                {
+
+                    if (_servername != null && _uid != null && _password != null && _database != null)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
+                }
+            }
+           
         }
+      
         protected virtual void Dispose(bool disposing)
         {
-            _disposedValue = false;
+           
             if (!_disposedValue)
             {
                 if (disposing)
                 {
-                    Connection.Close();
+                  
                    Connection?.Dispose();
 
-                    Console.WriteLine("Disposed!");
+              
                 }
                 _disposedValue = true;
             }
