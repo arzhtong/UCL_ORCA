@@ -6,6 +6,7 @@ using Orca.Services;
 using Orca.Tools;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace OrcaTests.Tools
 {
@@ -78,16 +79,16 @@ namespace OrcaTests.Tools
 
     public class MockSharepointCourseCatalog : ICourseCatalog
     {
-        public readonly Dictionary<string, string> mockCatalog;
+        public readonly Dictionary<string, CourseCatalogType > mockCatalog;
 
         public MockSharepointCourseCatalog()
         {
-            mockCatalog = new Dictionary<string, string>();
+            mockCatalog = new Dictionary<string, CourseCatalogType>();
         }
 
         public string GetListNameForCourse(string courseId)
         {
-                return mockCatalog[courseId];
+                return mockCatalog[courseId].ListName;
         }
         public bool CheckCourseIdExist(string courseId)
         {
@@ -98,5 +99,21 @@ namespace OrcaTests.Tools
         {
             return;
         }
+
+        public string GetCourseIDForJoinWebURL(string webURL)
+        {
+            return mockCatalog.FirstOrDefault(x => x.Value.JoinWebUrl == webURL).Key;
+        }
+
+        public bool CheckJoinWebURLExist(string webURL)
+        {
+            return (GetCourseIDForJoinWebURL(webURL) != null) ? true : false;
+        }
+    }
+
+    public class CourseCatalogType
+    {
+        public string ListName { get; set; }
+        public string JoinWebUrl { get; set; }
     }
 }
