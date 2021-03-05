@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 namespace Orca.Services
 {
 
@@ -15,9 +16,8 @@ namespace Orca.Services
 
         private readonly ISharepointManager _sharePointManager;
         private readonly ICourseCatalog _courseCatalog;
-        private readonly DatabaseConnect _connect;
         private ILogger<EventAggregator> _logger;
-
+        private readonly IServiceScopeFactory _scope;
         // Attributes of default event list.
         public const string EVENT_LIST_COURSE_ID = "CourseId";
         public const string EVENT_LIST_STUDENT_NAME = "StudentName";
@@ -34,12 +34,12 @@ namespace Orca.Services
             _logger = logger;
 
         }
-        public EventAggregator(ISharepointManager sharePointManager, ICourseCatalog courseCatalog, ILogger<EventAggregator> logger, DatabaseConnect connect)
+        public EventAggregator(ISharepointManager sharePointManager, ICourseCatalog courseCatalog, ILogger<EventAggregator> logger, IServiceScopeFactory scope)
         {
             _sharePointManager = sharePointManager;
             _courseCatalog = courseCatalog;
             _logger = logger;
-            _connect = connect;
+            _scope = scope;
         }
 
 
@@ -74,7 +74,7 @@ namespace Orca.Services
                 }
 
                 // All events will then be stored in database if have database.
-                if (_connect != null)
+                if (_scope != null)
                 {
                     StoreEventInDatabase(studentEvent);
                 }
@@ -116,24 +116,27 @@ namespace Orca.Services
             return eventItem;
         }
 
-        private void StoreEventInDatabase(StudentEvent studentEvent)
+        private async Task StoreEventInDatabase(StudentEvent studentEvent)
         {
 
-            //Database connect
-
+        
+            using (var scope = _scope.CreateScope())
             {
-                //If connect successfully,storing events to database, ignore if not.
-                if (_connect.HasDatabase())
-                {
-                    _connect.StoreStudentToDatabase(studentEvent);
-                    _connect.StoreEventToDatabase(studentEvent);
-                    _connect.Dispose(); 
-                }
-                else
-                {
-                    _logger.LogInformation("Do not have database, no need to store events into database");
-                }
+
+                var db = scope.ServiceProvider.GetService<DatabaseConnect>();
+                
+                 await db.StoreEventToDatabase(studentEvent);
+                 await db.StoreStudentToDatabase(studentEvent);
+          
+
             }
+
+
+
+        }
+
         }
     }
-}
+
+
+     
