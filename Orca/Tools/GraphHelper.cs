@@ -27,7 +27,7 @@ namespace Orca.Tools
             var settingsVal = msGraphSettings.Value;
             _appId = settingsVal.AppId;
             _tenantId = settingsVal.TenantId;
-            _notificationUrl = settingsVal.Ngrok;
+            _notificationUrl = settingsVal.Domain;
             string _clientSecret = settingsVal.ClientSecret;
             _logger = logger;
 
@@ -147,7 +147,7 @@ namespace Orca.Tools
             }
         }
 
-        public async Task<IGraphServiceSubscriptionsCollectionPage> ListSubscriptions()
+        public async Task<List<Subscription>> ListSubscriptions()
         {
             try
             {
@@ -155,14 +155,11 @@ namespace Orca.Tools
                     .Request()
                     .GetAsync();
 
-                foreach (Subscription subscription in subscriptions)
-                {
-                    if ((subscription.Resource != "/communications/callRecords") || (subscription.NotificationUrl != (_notificationUrl + "/api/notifications")))
-                    {
-                        subscriptions.Remove(subscription);
-                    }
-                }
-                return subscriptions;
+                var subscriptionsList = new List<Subscription>();
+                subscriptionsList.AddRange(subscriptions);
+                
+                subscriptionsList.RemoveAll(subscription => (subscription.Resource != "/communications/callRecords") || (subscription.NotificationUrl != (_notificationUrl + "/api/notifications")));
+                return subscriptionsList;
             }
             catch (ServiceException ex)
             {
