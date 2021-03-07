@@ -12,7 +12,8 @@ namespace Orca.Tools
 {
     public class SharepointManager : IDisposable, ISharepointManager
     {
-        private readonly string _azureAppId;
+        private readonly string _sharepointClientId;
+        private readonly string _sharepointClientSecret;
         private readonly string _sharepointUrl;
         private bool _disposedValue;
         private PnP.Framework.AuthenticationManager _authenticationManager;
@@ -20,14 +21,10 @@ namespace Orca.Tools
         public SharepointManager(IOptions<SharepointSettings> sharepointSettings)
         {
             var settingsVal = sharepointSettings.Value;
-            _azureAppId = settingsVal.AzureAppId;
+            _sharepointClientId = settingsVal.ClientId;
+            _sharepointClientSecret = settingsVal.ClientSecret;
             _sharepointUrl = settingsVal.SharepointUrl;
-            SecureString securePassword = new SecureString();
-            foreach(char c in settingsVal.Password)
-            {
-                securePassword.AppendChar(c);
-            }
-            _authenticationManager = new PnP.Framework.AuthenticationManager(_azureAppId, settingsVal.Username, securePassword);
+            _authenticationManager = new PnP.Framework.AuthenticationManager();
         }
 
         public async Task<bool> AddItemToList(string listName, SharepointListItem item)
@@ -36,7 +33,7 @@ namespace Orca.Tools
             try
             {
                 // Authentication.
-                using (var context = _authenticationManager.GetContext(_sharepointUrl))
+                using (var context = GetSharepointSiteContext())
                 {
                     Microsoft.SharePoint.Client.List eventList = context.Web.Lists.GetByTitle(listName);
                     ListItemCreationInformation itemInfo = new ListItemCreationInformation();
@@ -63,7 +60,7 @@ namespace Orca.Tools
         public async Task<List<SharepointListItem>> GetItemsFromList(string listName)
         {
             var itemsToReturn = new List<SharepointListItem>();
-            using (var context = _authenticationManager.GetContext(_sharepointUrl))
+            using (var context = GetSharepointSiteContext())
             {
                 var list = context.Web.Lists.GetByTitle(listName);
                 context.Load(list);
@@ -86,7 +83,7 @@ namespace Orca.Tools
 
         public bool CheckListExists(string listName)
         {
-            using (var context = _authenticationManager.GetContext(_sharepointUrl))
+            using (var context = GetSharepointSiteContext())
             {
                 Web orcaSite = context.Web;
                 return orcaSite.ListExists(listName);
@@ -97,7 +94,7 @@ namespace Orca.Tools
         public void CreateList(string listName, string description, List<string> fieldsAsXml)
         {
             // Need to modify to set privilege.
-            using (var context = _authenticationManager.GetContext(_sharepointUrl))
+            using (var context = GetSharepointSiteContext())
             {
                 Web orcaSite = context.Web;
 
@@ -127,7 +124,6 @@ namespace Orca.Tools
                 context.ExecuteQuery();
                 defaultListView.ViewFields.Remove("LinkTitle");
                 defaultListView.Update();
-
                 // add a navigation link to the newly created list
                 string baseSharepointUrl = _sharepointUrl.Substring(0, _sharepointUrl.IndexOf("/sites"));
                 orcaSite.AddNavigationNode(
@@ -153,7 +149,12 @@ namespace Orca.Tools
                 // await context.ExecuteQueryAsync();
             }
         }
-        
+
+        private ClientContext GetSharepointSiteContext()
+        {
+            return _authenticationManager.GetACSAppOnlyContext(_sharepointUrl, _sharepointClientId, _sharepointClientSecret);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)

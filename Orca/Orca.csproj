@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>debc293c-97a1-4b5a-ac66-b7e5fefd6aac</UserSecretsId>
-	  <AspNetCoreModuleName>AspNetCoreModule</AspNetCoreModuleName>
   </PropertyGroup>
 	<PropertyGroup>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -29,6 +28,14 @@
 
   <ItemGroup>
     <Folder Include="Services\MSGraphSubscription\" />
+  </ItemGroup>
+
+
+  <!-- Include database initialization script with packaged application -->
+  <ItemGroup>
+    <None Update="Database\OrcaDatabase.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

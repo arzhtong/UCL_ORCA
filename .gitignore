@@ -6,6 +6,9 @@
 # Project related
 appsettings.Production.json
 
+# Azure related
+.azure
+
 # User-specific files
 *.rsuser
 *.suo

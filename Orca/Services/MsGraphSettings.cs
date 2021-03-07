@@ -27,7 +27,7 @@ namespace Orca.Services
         /// </summary>
         public string ClientSecret { get; set; }
         /// <summary>
-        /// Ngrok
+        /// The public host URL through which this application is exposed (e.g. https://myorcadeployment.azurewebsites.net). Required for the MS Graph API to send us updates about new Teams meetings.
         /// </summary>
         public string Domain { get; set; }
 

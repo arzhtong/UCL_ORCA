@@ -86,7 +86,6 @@ namespace Orca.Controllers
                                         Email = user.Mail,
                                         FirstName = user.GivenName,
                                         LastName = user.Surname,
-                                        //TODO - Find the mapping between this userId and the university's student ID.
                                         ID = user.Id
                                     }
                                 };

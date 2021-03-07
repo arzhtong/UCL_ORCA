@@ -17,21 +17,14 @@ namespace OrcaTests.Integration
 {
     /// <summary>
     /// Tests in this class require the following environment variables to run:
-    /// Pre: ORCA_INTEGRATION = TRUE
-    /// AZURE_APP_ID 
+    /// ORCA_INTEGRATION = TRUE
     /// SHAREPOINT_URL
-    /// SHAREPOINT_USERNAME
-    /// SHAREPOINT_PASSWORD
+    /// SHAREPOINT_CLIENT_ID
+    /// SHAREPOINT_CLIENT_SECRET
     /// </summary>
     public class SharepointIntegrationTests : IDisposable
     {
         private string _listNameForTest;
-
-        // Before run this integration test, please do SharePoint environment variable settings.
-        // By default you can set as following:
-        // AZURE_APP_ID="b269d983-e626-4d2d-bf17-606b0f2a93bb"
-        // SHAREPOINT_URL="https://liveuclac.sharepoint.com/sites/ORCA"
-        // SHAREPOINT_USERNAME and SHAREPOINT_PASSWORD is one tester who has permissions on that Sharepoint list.
 
         // Test functions(methods) in SharepointManager.cs (namespace Orca.Tools)
         // AddItemToList();
@@ -108,10 +101,9 @@ namespace OrcaTests.Integration
         {
             var settings = new SharepointSettings
             {
-                AzureAppId = Environment.GetEnvironmentVariable("AZURE_APP_ID"),
                 SharepointUrl = Environment.GetEnvironmentVariable("SHAREPOINT_URL"),
-                Username = Environment.GetEnvironmentVariable("SHAREPOINT_USERNAME"),
-                Password = Environment.GetEnvironmentVariable("SHAREPOINT_PASSWORD"),
+                ClientId = Environment.GetEnvironmentVariable("SHAREPOINT_CLIENT_ID"),
+                ClientSecret = Environment.GetEnvironmentVariable("SHAREPOINT_CLIENT_SECRET"),
                 CourseCatalogListName = "defaultName"
                 // No need for course catalog for this class' testing.
                 
@@ -126,14 +118,10 @@ namespace OrcaTests.Integration
         public void Dispose()
         {
             var spSettings = SharepointSettingsFromEnv();
-            SecureString securePassword = new SecureString();
-            foreach (char c in spSettings.Password)
+            
+            using (var _authenticationManager = new PnP.Framework.AuthenticationManager())
             {
-                securePassword.AppendChar(c);
-            }
-            using (var _authenticationManager = new PnP.Framework.AuthenticationManager(spSettings.AzureAppId, spSettings.Username, securePassword))
-            {
-                using (var context = _authenticationManager.GetContext(spSettings.SharepointUrl))
+                using (var context = _authenticationManager.GetACSAppOnlyContext(spSettings.SharepointUrl, spSettings.ClientId, spSettings.ClientSecret))
                 {
                     var orcaSite = context.Web;
                     if (orcaSite.ListExists(_listNameForTest))
