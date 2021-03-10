@@ -12,12 +12,12 @@ namespace Orca.Controllers
     // -- /api/events/mock
     [ApiController]
     [Route("api/events/mock")]
-    public class EventController : ControllerBase
+    public class MockEventController : ControllerBase
     {
         private readonly IEventAggregator _eventAggregator;
         // IEventAggregator is the interface of event aggregator.
 
-        public EventController(IEventAggregator eventAggregator)
+        public MockEventController(IEventAggregator eventAggregator)
         {
             // Passing event aggregator to event controller.
             _eventAggregator = eventAggregator;
@@ -28,15 +28,15 @@ namespace Orca.Controllers
         {
             StudentEvent testEvent = new StudentEvent
             {
-                CourseID = "COMP0101", // Course ID Upper case.
+                CourseID = "COMP0199", // Course ID Upper case.
                 Timestamp = DateTime.UtcNow,
                 EventType = EventType.Attendance,
                 ActivityType = "Video",
                 ActivityName = "Weekly Lecture",
                 Student = new Student 
                 { 
-                    Email = "vcd.zard@ucldev03.onmicrosoft.com",
-                    FirstName = "Vcd",
+                    Email = "vcdin.zard@ucldev03.onmicrosoft.com",
+                    FirstName = "Vcdin",
                     LastName = "Zard",
                     ID = "202001955"
                 }

@@ -80,12 +80,10 @@ namespace Orca.Services
                 if (_scope != null)
                 {
                     await StoreEventInDatabase(studentEvent);
-
                 }
-
-
             }
         }
+
         private List<string> CreateDefaultSharePointEventListSchema()
         {
             // Default schema of a list that store events.
@@ -122,25 +120,14 @@ namespace Orca.Services
 
         private async Task StoreEventInDatabase(StudentEvent studentEvent)
         {
-
-        
             using (var scope = _scope.CreateScope())
             {
 
                 var db = scope.ServiceProvider.GetService<DatabaseConnect>();
                 
-                 await db.StoreEventToDatabase(studentEvent);
-                 await db.StoreStudentToDatabase(studentEvent);
-          
-
+                await db.StoreEventToDatabase(studentEvent);
+                await db.StoreStudentToDatabase(studentEvent);
             }
-
-
-
-        }
-
         }
     }
-
-
-     
+}

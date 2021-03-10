@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using Orca.Entities;
+using Microsoft.SharePoint.Client.Utilities;
 
 namespace Orca.Tools
 {
@@ -132,21 +133,37 @@ namespace Orca.Tools
                     string.Empty,
                     PnP.Framework.Enums.NavigationType.QuickLaunch);
 
-                // Change permissions, need to be improved.
-                // Microsoft.SharePoint.Client.List targetList = orcaSite.Lists.GetByTitle(listName);
-                // context.Load(targetList, targetListInfo => targetListInfo.HasUniqueRoleAssignments);
-                // context.ExecuteQuery();
+                // Change permissions.
+                Microsoft.SharePoint.Client.List targetList = orcaSite.Lists.GetByTitle(listName);
+                context.Load(
+                    targetList,
+                    listInfo1 => listInfo1.HasUniqueRoleAssignments,
+                    listInfo2 => listInfo2.RoleAssignments.Include(roles => roles.Member));
+                context.ExecuteQuery();
+                
+                context.Load(orcaSite.AssociatedOwnerGroup, group => group.Id);
+                context.ExecuteQuery();
+                
+                var siteOwnerGroupId = orcaSite.AssociatedOwnerGroup.Id;
 
-                // if (!targetList.HasUniqueRoleAssignments) {
-                //     Console.WriteLine("Target list is inheriting role assignments.");
-                //     targetList.BreakRoleInheritance(true, false);
-                // } else {
-                //     Console.WriteLine("Target list has unique role assignments.");
-                // }
-                // targetList.Update();
-                // orcaSite.Update();
-                // Console.WriteLine("Privilege modified.");
-                // await context.ExecuteQueryAsync();
+                if (!targetList.HasUniqueRoleAssignments) {
+                    // Target list is inheriting role assignments, break that.
+                    targetList.BreakRoleInheritance(true, false);
+                }
+                // Delete all exist permissions. 
+                foreach (var assignment in targetList.RoleAssignments)
+                {
+                    // Delete the role assignment if it doesn't correspond to the site owners group
+                    if (assignment.Member.PrincipalType == PrincipalType.SharePointGroup && assignment.Member.Id != siteOwnerGroupId)
+                    {
+                        targetList.RoleAssignments.GetByPrincipal(assignment.Member).DeleteObject();
+                    }
+                }
+                targetList.Update();
+                context.ExecuteQuery();
+
+                Console.WriteLine("List has been created and permissions on it has been modified.");
+                // Currently only site admin can view this list.
             }
         }
 
@@ -189,7 +206,5 @@ namespace Orca.Tools
         {
         }
 
-
     }
-
 }
