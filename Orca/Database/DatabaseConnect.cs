@@ -10,8 +10,8 @@ using Orca.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Orca.Entities;
-
-
+using Microsoft.Extensions.Hosting;
+using System.IO;
 
 namespace Orca.Database
 {
@@ -21,43 +21,46 @@ namespace Orca.Database
         private string _uid;
         private string _password;
         private string _database;
+        private string _pathToCreationScript;
         private bool _hasDatabase = false;
         public bool _disposedValue;
         public MySqlConnection Connection { get; set; }
-   
-        public DatabaseConnect(IOptions<DatabaseFields> settings)
+
+        public DatabaseConnect(IOptions<DatabaseFields> settings, IHostEnvironment hostingEnvironment)
         {
+            _pathToCreationScript = Path.Combine(hostingEnvironment.ContentRootPath, "Database", "OrcaDatabase.sql");
             var fields = settings.Value;
             _servername = fields.Servername;
             _uid = fields.Uid;
             _password = fields.Password;
             _database = fields.Database;
-            string connString = $"Server = {_servername}; Database = {_database}; Uid= {_uid}; Pwd= {_password};";
-            Connection = new MySqlConnection(connString);
-            try
+            _hasDatabase = _servername != null && _uid != null && _password != null && _database != null;
+
+            if (_hasDatabase)
             {
+                string connString = $"Server = {_servername}; Database = {_database}; Uid= {_uid}; Pwd= {_password}; SslMode=Preferred;";
+                Connection = new MySqlConnection(connString);
                 Connection.Open();
-                _hasDatabase = true;
-            
-            }
-            catch (MySqlException ex)
-            {
-                if (_servername != null && _uid != null && _password != null && _database !=null)
-                {
-                    Console.WriteLine(ex.Message);
-                }
             }
         }
         public bool HasDatabase()
         {
             return _hasDatabase;
         }
-     
 
-    
-   
+        public void CreateDatabase()
+        {
+            var creationScript = File.ReadAllText(_pathToCreationScript);
+            // set Database to null in case it hasn't been created yet
+            using (var conn = new MySqlConnection($"Server = {_servername}; Database = {null}; Uid= {_uid}; Pwd= {_password}; SslMode=Preferred;"))
+            {
+                conn.Open();
+                var sqlScript = new MySqlScript(conn, creationScript);
+                sqlScript.Execute();
+            }
+        }
 
-     
+
         public async Task StoreEventToDatabase(StudentEvent studentEvent)
         {
             string sql = "INSERT INTO event(student_ID, course_ID, Timestamp, event_type, activity_name, activity_details) VALUES(@student_ID,@course_ID, @Timestamp, @event_type, @activity_name, @activity_details)";
@@ -70,16 +73,14 @@ namespace Orca.Database
                                             new MySqlParameter("@activity_details", studentEvent.ActivityType)
                                         };
 
-         
- 
             await AddInfoToDatabase(sql, parameters);
-            
-            
+
+
         }
 
         public async Task StoreStudentToDatabase(StudentEvent studentEvent)
         {
-            
+
             string sql = "INSERT IGNORE INTO student(id, first_name, last_name,email) VALUES(@ID, @first_name, @last_name,@studentEmail)";
             MySqlParameter[] parameters = {
                                                         new MySqlParameter("@ID", studentEvent.Student.ID),
@@ -87,49 +88,32 @@ namespace Orca.Database
                                                         new MySqlParameter("@last_name", studentEvent.Student.LastName),
                                                         new MySqlParameter("@studentEmail", studentEvent.Student.Email)
                                                     };
-    
-            
-          
+
             await AddInfoToDatabase(sql, parameters);
-         
+
         }
 
         public async Task AddInfoToDatabase(string sql, MySqlParameter[] parameters)
         {
-            
+            if (_hasDatabase)
+            {
                 using (MySqlCommand cmd = new MySqlCommand(sql, Connection))
                 {
-                try
-                {
                     cmd.Parameters.AddRange(parameters);
-                    cmd.ExecuteScalar();
+                    await cmd.ExecuteScalarAsync();
                     Console.WriteLine("Transaction successful");
-                    
-                }
-                catch(Exception e)
-                {
-
-                    if (_servername != null && _uid != null && _password != null && _database != null)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-
                 }
             }
-           
         }
-      
+
         protected virtual void Dispose(bool disposing)
         {
-           
+
             if (!_disposedValue)
             {
                 if (disposing)
                 {
-                  
-                   Connection?.Dispose();
-
-              
+                    Connection?.Dispose();
                 }
                 _disposedValue = true;
             }

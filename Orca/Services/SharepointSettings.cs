@@ -11,11 +11,15 @@ namespace Orca.Services
     /// </summary>
     public class SharepointSettings
     {
-        /// 
         /// <summary>
-        /// The App ID registered on Azure AD
+        /// The Sharepoint Client ID through which we will authenticate
         /// </summary>
-        public string AzureAppId { get; set; }
+        public string ClientId { get; set; }
+
+        /// <summary>
+        /// The Sharepoint Client Secret through which we will authenticate
+        /// </summary>
+        public string ClientSecret { get; set; }
 
         /// <summary>
         /// The URL to the sharepoint site
@@ -28,14 +32,8 @@ namespace Orca.Services
         public string CourseCatalogListName { get; set; }
 
         /// <summary>
-        /// The username through which we will authenticate
+        /// How often the CourseCatalog is updated (in seconds)
         /// </summary>
-        public string Username { get; set; }
-
-        /// <summary>
-        /// The password through which we will authenticate
-        /// </summary>
-        public string Password { get; set; }
-
+        public int CourseCatalogUpdateInterval { get; set; }
     }
 }

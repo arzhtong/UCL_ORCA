@@ -67,6 +67,32 @@ namespace Orca.Tools
             }
         }
 
+        public async Task<string> GetUserIdByMailAsync(string mail)
+        {
+            try
+            {
+                // GET /users/{id}
+                var result =  await _graphClient.Users
+                    .Request()
+                    .Select(e => new
+                    {
+                        e.Mail,
+                        e.GivenName,
+                        e.Surname,
+                        e.Id
+                    })
+                    .Filter("mail eq '" + mail + "'")
+                    .GetAsync();
+                
+                return result.Count == 0 ? null : result[0].Id;
+            }
+            catch (ServiceException ex)
+            {
+                _logger.LogError($"Error getting users: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<CallRecord> GetCallRecordSessions(string callId)
         {
             try

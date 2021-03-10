@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Orca.Database;
+using System.Threading.Tasks;
 
 namespace Orca.Controllers
 {
@@ -23,7 +24,7 @@ namespace Orca.Controllers
         }
 
         [HttpGet]
-        public StudentEvent GenerateEvent()
+        public async Task<StudentEvent> GenerateEvent()
         {
             StudentEvent testEvent = new StudentEvent
             {
@@ -34,13 +35,13 @@ namespace Orca.Controllers
                 ActivityName = "Weekly Lecture",
                 Student = new Student 
                 { 
-                    Email = "vcd.zard@example.com",
+                    Email = "vcd.zard@ucldev03.onmicrosoft.com",
                     FirstName = "Vcd",
                     LastName = "Zard",
                     ID = "202001955"
                 }
             };
-             _eventAggregator.ProcessEvent(testEvent);
+            await _eventAggregator.ProcessEvent(testEvent);
             // Print event info in console.
             return testEvent;
             // Get response on the swagger UI.

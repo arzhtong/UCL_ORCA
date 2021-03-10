@@ -46,6 +46,7 @@ namespace Orca
             services.AddHostedService<CourseCatalogUpdater>();
 
             // Register the moodle adapter
+            services.AddSingleton<IIdentityResolver, MsGraphIdentityResolver>();
             services.AddSingleton<MoodleAdapter>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -55,13 +56,22 @@ namespace Orca
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DatabaseConnect dbConnection, ILogger<Startup> logger)
         {
+            if (dbConnection.HasDatabase())
+            {
+                logger.LogInformation("Initializing database schema");
+                dbConnection.CreateDatabase();
+            } else
+            {
+                logger.LogWarning("Database credentials are missing. Application will run without connecting to a database. Engagement events will not be persisted");
+            }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Orca v1"));
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Orca v1"));
             }
 
             if (!env.IsDevelopment())

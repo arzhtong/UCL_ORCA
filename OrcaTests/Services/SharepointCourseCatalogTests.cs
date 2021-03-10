@@ -62,10 +62,9 @@ namespace OrcaTests.Services
             return new SharepointSettings
             {
                 CourseCatalogListName = courseCatalogListName,
-                AzureAppId = "any",
                 SharepointUrl = "https://anysharepointurl.com/sites/X",
-                Username = "any",
-                Password = "any"
+                ClientId = "any",
+                ClientSecret = "any"
             };
         }
 

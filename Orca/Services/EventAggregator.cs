@@ -46,7 +46,6 @@ namespace Orca.Services
         public async Task ProcessEvent(StudentEvent studentEvent)
         {
 
-
             // Check whether courseId exist in the courseCatalog.
             if (_courseCatalog.CheckCourseIdExist(studentEvent.CourseID))
             {
@@ -70,13 +69,18 @@ namespace Orca.Services
                     _logger.LogInformation("List \"{0}\" is now exist and ready to store events.", targetList);
                     // Assign to different list by course ID.
                     SharepointListItem eventItem = PackEventItem(studentEvent);
-                    await _sharePointManager.AddItemToList(targetList, eventItem);
+                    bool addedEvent = await _sharePointManager.AddItemToList(targetList, eventItem);
+                    if (!addedEvent)
+                    {
+                        _logger.LogError($"Failed to store attendance event {eventItem}");
+                    }
                 }
 
                 // All events will then be stored in database if have database.
                 if (_scope != null)
                 {
-                    StoreEventInDatabase(studentEvent);
+                    await StoreEventInDatabase(studentEvent);
+
                 }
 
 

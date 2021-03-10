@@ -1,0 +1,43 @@
+name: Publish
+
+on:
+    workflow_dispatch:
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+    env:
+      PUBLISH_ARGS: Orca/Orca.csproj -c Release --self-contained
+      PUBLISH_BASE_PATH: Orca/bin/Release/net5.0
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build
+    
+    - name: Publish windows binaries
+      run: dotnet publish $PUBLISH_ARGS -r win-x64 && zip -r orca-windows ${PUBLISH_BASE_PATH}/win-x64/publish
+    
+    - name: Publish linux binaries
+      run: dotnet publish $PUBLISH_ARGS -r linux-x64 && zip -r orca-linux ${PUBLISH_BASE_PATH}/linux-x64/publish
+    
+    - name: Publish macos binaries
+      run: dotnet publish $PUBLISH_ARGS -r osx-x64 && zip -r orca-macos ${PUBLISH_BASE_PATH}/osx-x64/publish
+    
+    - name: Upload binaries as Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "orca-windows.zip,orca-linux.zip,orca-macos.zip"
+        bodyFile: "README.md"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: "1.0"
+        allowUpdates: true
