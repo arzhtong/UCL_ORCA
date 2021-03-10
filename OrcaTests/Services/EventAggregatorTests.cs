@@ -18,7 +18,7 @@ namespace OrcaTests.Services
             var courseCatalog = new MockSharepointCourseCatalog();
             string courseId = "COMP0101";
             string listToStoreEvents = "Attendance Events";
-            courseCatalog.mockCatalog.Add(courseId, listToStoreEvents);
+            courseCatalog.mockCatalog.Add(courseId, new CourseCatalogType {ListName = listToStoreEvents, JoinWebUrl = null });
             mockSharepointManager.CreateList(listToStoreEvents, "", new List<string>());
 
             var eventAggregator = new EventAggregator(mockSharepointManager, courseCatalog, new InMemoryLogger<EventAggregator>());
@@ -77,7 +77,7 @@ namespace OrcaTests.Services
             var courseCatalog = new MockSharepointCourseCatalog();
             string courseId = "COMP0101";
             string listToStoreEvents = "Attendance Events";
-            courseCatalog.mockCatalog.Add(courseId, listToStoreEvents);
+            courseCatalog.mockCatalog.Add(courseId, new CourseCatalogType {ListName = listToStoreEvents, JoinWebUrl = null });
             mockSharepointManager.CreateList(listToStoreEvents, "", new List<string>());
 
             var eventAggregator = new EventAggregator(mockSharepointManager, courseCatalog, new InMemoryLogger<EventAggregator>());
@@ -105,7 +105,7 @@ namespace OrcaTests.Services
            
             string courseId = "COMP0101";
             string listToStoreEvents = "Attendance Events";
-            courseCatalog.mockCatalog.Add(courseId, listToStoreEvents);
+            courseCatalog.mockCatalog.Add(courseId, new CourseCatalogType {ListName = listToStoreEvents , JoinWebUrl = null });
 
             bool eventListExist = mockSharepointManager.CheckListExists(listToStoreEvents);
             Assert.False(eventListExist);

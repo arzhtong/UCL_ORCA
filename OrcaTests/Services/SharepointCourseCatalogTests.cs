@@ -36,7 +36,7 @@ namespace OrcaTests.Services
             mockSharepointManager.CreateList(courseCatalogListName, "", new List<string>());
 
             string courseIdThatWillBeDeleted = "COMP0100";
-            var itemThatWillBeDeleted = ListItemWithCourseIdAndListName(courseIdThatWillBeDeleted, "any");
+            var itemThatWillBeDeleted = ListItemWithCourseIdAndListName(courseIdThatWillBeDeleted, "any", "any");
             await mockSharepointManager.AddItemToList(courseCatalogListName, itemThatWillBeDeleted);
 
             var courseCatalog = new SharepointCourseCatalog(Options.Create(settings), new InMemoryLogger<SharepointCourseCatalog>(), mockSharepointManager);
@@ -45,13 +45,16 @@ namespace OrcaTests.Services
             // simulate adding an item to the sharepoint list
             string courseIdThatWillBeAdded = "COMP0102";
             string expectedListName = "expectedListName";
-            await mockSharepointManager.AddItemToList(courseCatalogListName, ListItemWithCourseIdAndListName(courseIdThatWillBeAdded, expectedListName));
+            string expectedJoinWebUrl = "expectedJoinWebUrl";
+            await mockSharepointManager.AddItemToList(courseCatalogListName, ListItemWithCourseIdAndListName(courseIdThatWillBeAdded, expectedListName, expectedJoinWebUrl));
             // update the catalog after modifying the underlying sharepoint list
             await courseCatalog.UpdateInMemoryMapping();
 
             Assert.Throws<KeyNotFoundException>(() => courseCatalog.GetListNameForCourse(courseIdThatWillBeDeleted));
             string actualListNameOfAddedEntry = courseCatalog.GetListNameForCourse(courseIdThatWillBeAdded);
             Assert.Equal(expectedListName, actualListNameOfAddedEntry);
+            string actualCourseId = courseCatalog.GetCourseIDForJoinWebURL(expectedJoinWebUrl);
+            Assert.Equal(courseIdThatWillBeAdded, actualCourseId);
         }
 
         public static SharepointSettings SharepointSettingsWithCourseCatalogName(string courseCatalogListName)
@@ -65,12 +68,13 @@ namespace OrcaTests.Services
             };
         }
 
-        private static Orca.Tools.SharepointListItem ListItemWithCourseIdAndListName(string courseId, string listName)
+        private static Orca.Tools.SharepointListItem ListItemWithCourseIdAndListName(string courseId, string listName, string joinWebUrl)
         {
             return new Orca.Tools.SharepointListItem()
             {
                 [SharepointCourseCatalog.COURSE_ID_FIELD] = courseId,
-                [SharepointCourseCatalog.SHAREPOINT_LIST_NAME_FIELD] = listName
+                [SharepointCourseCatalog.SHAREPOINT_LIST_NAME_FIELD] = listName,
+                [SharepointCourseCatalog.JOIN_WEB_URL_FIELD] = joinWebUrl
             };
         }
 

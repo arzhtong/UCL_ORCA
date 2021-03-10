@@ -32,13 +32,15 @@ namespace Orca.Controllers
         private GraphHelper _graphHelper;
         private ILogger<GraphHelper> _logger;
         private readonly MsGraphAdapter _graphAdapter;
+        private ICourseCatalog _courseCatalog;
 
-        public NotificationsController(IOptions<MSGraphSettings> msGraphSettings, GraphHelper graphHelper, ILogger<GraphHelper> logger,MsGraphAdapter msGraphAdapter)
+        public NotificationsController(IOptions<MSGraphSettings> msGraphSettings, GraphHelper graphHelper, ILogger<GraphHelper> logger, MsGraphAdapter msGraphAdapter, ICourseCatalog courseCatalog)
         {
             this._config = msGraphSettings.Value;
             this._graphHelper = graphHelper;
             this._logger = logger;
             _graphAdapter = msGraphAdapter;
+            _courseCatalog = courseCatalog;
         }
 
         [HttpPost]
@@ -65,8 +67,10 @@ namespace Orca.Controllers
                     _logger.LogDebug($"Received notification: '{notification.Resource}', {notification.ResourceData?.Id}");
                     var callRecord = await _graphHelper.GetCallRecordSessions(notification.ResourceData?.Id);
                     var joinWebUrl = (callRecord != null ? callRecord.JoinWebUrl : null);
-                    if (joinWebUrl != null)
+                    if (joinWebUrl != null && _courseCatalog.CheckJoinWebURLExist(joinWebUrl))
                     {
+                        await _courseCatalog.UpdateInMemoryMapping();
+                        string targetCourseID = _courseCatalog.GetCourseIDForJoinWebURL(joinWebUrl);
                         foreach (Session session in callRecord.Sessions)
                         {
                             ParticipantEndpoint caller = (ParticipantEndpoint)session.Caller;
@@ -75,8 +79,7 @@ namespace Orca.Controllers
                             {
                                 StudentEvent studentEvent = new StudentEvent
                                 {
-                                    //TODO - Find course ID based on joinWebUrl.
-                                    CourseID = "COMP0088", // Course ID Upper case.
+                                    CourseID = targetCourseID.ToUpper(),
                                     Timestamp = ((DateTimeOffset)session.StartDateTime).UtcDateTime,
                                     EventType = EventType.Attendance,
                                     ActivityType = "Meeting",
