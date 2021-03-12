@@ -150,10 +150,10 @@ namespace Orca.Tools
                     // Target list is inheriting role assignments, break that.
                     targetList.BreakRoleInheritance(true, false);
                 }
-                // Delete all exist permissions. 
+                // Delete all exist permissions except admin group. 
                 foreach (var assignment in targetList.RoleAssignments)
                 {
-                    // Delete the role assignment if it doesn't correspond to the site owners group
+                    // Delete the role assignment if it doesn't correspond to the site owners group.
                     if (assignment.Member.PrincipalType == PrincipalType.SharePointGroup && assignment.Member.Id != siteOwnerGroupId)
                     {
                         targetList.RoleAssignments.GetByPrincipal(assignment.Member).DeleteObject();

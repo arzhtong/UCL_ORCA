@@ -31,10 +31,11 @@ namespace OrcaTests.Integration
         // GetItemsFromList();
         // CheckListExists();
         // CreateList();
+        // -- create list including the list creation and permission modification.
 
         public SharepointIntegrationTests()
         {
-            // generate random list name to avoid collisions
+            // generate random list name to avoid collisions.
             _listNameForTest = "SharepointIntegrationTest-" + Guid.NewGuid();
         }
 
@@ -44,7 +45,7 @@ namespace OrcaTests.Integration
         {
             var sharepointManager = new SharepointManager(Options.Create(SharepointSettingsFromEnv()));
             var listToCreate = _listNameForTest;
-            var description = "Sharepoint integration test simple list.";
+            var description = "Sharepoint integration test 1 simple list.";
             string FIELD_XML_SCHEMA = $"<Field DisplayName='Default' Type='Text' Required='TRUE' />";
 
             bool listExistsBeforeCreating = sharepointManager.CheckListExists(listToCreate);
@@ -77,6 +78,46 @@ namespace OrcaTests.Integration
                 bool itemContainsExpectedValue = item.Values.Contains("testItem");
                 Assert.True(itemContainsExpectedKey && itemContainsExpectedValue);
                 Assert.Equal("testItem", item["Default"]);
+            }
+        }
+
+        [IntegrationFact]
+        public void CreateListAndCheckRoleAssignmentsTest()
+        {
+            var sharepointManager = new SharepointManager(Options.Create(SharepointSettingsFromEnv()));
+            var listToCreate = _listNameForTest;
+            var description = "Sharepoint integration test 2 simple list.";
+            string FIELD_XML_SCHEMA = $"<Field DisplayName='Default' Type='Text' Required='TRUE' />";
+
+            sharepointManager.CreateList(listToCreate, description, new List<string> { FIELD_XML_SCHEMA });
+            
+            var spSettings = SharepointSettingsFromEnv();
+            using (var _authenticationManager = new PnP.Framework.AuthenticationManager())
+            {
+                using (var context = _authenticationManager.GetACSAppOnlyContext(spSettings.SharepointUrl, spSettings.ClientId, spSettings.ClientSecret))
+                {
+                    var orcaSite = context.Web;
+                    
+                    Microsoft.SharePoint.Client.List createdList = orcaSite.Lists.GetByTitle(listToCreate);
+                    
+                    context.Load(createdList, x => x.HasUniqueRoleAssignments, y => y.RoleAssignments.Include(r => r.Member));
+                    context.ExecuteQuery();
+                    context.Load(orcaSite.AssociatedOwnerGroup, g => g.Id);
+                    context.ExecuteQuery();
+                    
+                    bool isUniqueRoleAssignments = createdList.HasUniqueRoleAssignments;
+                    Assert.True(isUniqueRoleAssignments);
+
+                    int roleAssignmentsCount = createdList.RoleAssignments.Count;
+                    Assert.Equal(1, roleAssignmentsCount);
+                    
+                    var siteOwnerGroupId = orcaSite.AssociatedOwnerGroup.Id;
+                    foreach (var assignment in createdList.RoleAssignments)
+                    {
+                        var id = assignment.Member.Id;
+                        Assert.Equal(siteOwnerGroupId, id);
+                    }
+                }
             }
         }
 

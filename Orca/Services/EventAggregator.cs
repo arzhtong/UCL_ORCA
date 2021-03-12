@@ -87,7 +87,6 @@ namespace Orca.Services
         private List<string> CreateDefaultSharePointEventListSchema()
         {
             // Default schema of a list that store events.
-            // This function is temporarily exist here, might be moved or deleted.
             List<string> eventList = new List<string>
             {
                 $"<Field DisplayName='{EVENT_LIST_COURSE_ID}' Type='Text' />",
