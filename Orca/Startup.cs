@@ -33,7 +33,7 @@ namespace Orca
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
             services.Configure<DatabaseFields>(Configuration.GetSection("Orca:Database"));
-            services.AddSingleton<GraphHelper>();
+            services.AddSingleton<IGraphHelper, GraphHelper>();
             // Register the sharepoint manager
             services.AddSingleton<ISharepointManager, SharepointManager>();
             services.AddTransient<DatabaseConnect>();
@@ -43,8 +43,9 @@ namespace Orca
             services.AddSingleton<SharepointCourseCatalog>(); // directly register as SharepointCourseCatalog for the CourseCatalogUpdater 
             // asking for an ICourseCatalog will give us the same registered SharepointCourseCatalog above
             services.AddSingleton<ICourseCatalog>(serviceFactory => serviceFactory.GetRequiredService<SharepointCourseCatalog>());
+        
             services.AddHostedService<CourseCatalogUpdater>();
-
+           
             // Register the moodle adapter
             services.AddSingleton<IIdentityResolver, MsGraphIdentityResolver>();
             services.AddSingleton<MoodleAdapter>();

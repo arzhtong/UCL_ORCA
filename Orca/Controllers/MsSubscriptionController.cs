@@ -29,12 +29,12 @@ namespace Orca.Controllers
     {
         private readonly MSGraphSettings _config;
         private static Dictionary<string, Subscription> _subscriptions = new Dictionary<string, Subscription>();
-        private GraphHelper _graphHelper;
-        private ILogger<GraphHelper> _logger;
+        private IGraphHelper _graphHelper;
+        private ILogger<IGraphHelper> _logger;
         private readonly MsGraphAdapter _graphAdapter;
         private ICourseCatalog _courseCatalog;
 
-        public NotificationsController(IOptions<MSGraphSettings> msGraphSettings, GraphHelper graphHelper, ILogger<GraphHelper> logger, MsGraphAdapter msGraphAdapter, ICourseCatalog courseCatalog)
+        public NotificationsController(IOptions<MSGraphSettings> msGraphSettings, IGraphHelper graphHelper, ILogger<IGraphHelper> logger, MsGraphAdapter msGraphAdapter, ICourseCatalog courseCatalog)
         {
             this._config = msGraphSettings.Value;
             this._graphHelper = graphHelper;

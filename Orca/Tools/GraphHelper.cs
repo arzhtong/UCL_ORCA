@@ -14,15 +14,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Orca.Tools
 {
-    public class GraphHelper
+    public class GraphHelper: IGraphHelper
     {
         private static GraphServiceClient _graphClient;
         private readonly string _appId;
         private readonly string _tenantId;
         private readonly string _notificationUrl;
-        private ILogger<GraphHelper> _logger;
+        private ILogger<IGraphHelper> _logger;
 
-        public GraphHelper(IOptions<MSGraphSettings> msGraphSettings, ILogger<GraphHelper> logger)
+        public GraphHelper(IOptions<MSGraphSettings> msGraphSettings, ILogger<IGraphHelper> logger)
         {
             var settingsVal = msGraphSettings.Value;
             _appId = settingsVal.AppId;
