@@ -124,8 +124,8 @@ namespace Orca.Services
 
                 var db = scope.ServiceProvider.GetService<DatabaseConnect>();
                 
-                await db.StoreEventToDatabase(studentEvent);
                 await db.StoreStudentToDatabase(studentEvent);
+                await db.StoreEventToDatabase(studentEvent);
             }
         }
     }
