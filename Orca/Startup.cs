@@ -45,10 +45,13 @@ namespace Orca
             services.AddSingleton<ICourseCatalog>(serviceFactory => serviceFactory.GetRequiredService<SharepointCourseCatalog>());
         
             services.AddHostedService<CourseCatalogUpdater>();
-           
+            services.AddHostedService<MsGraphSubscriptionUpdater>();
+
+
             // Register the moodle adapter
             services.AddSingleton<IIdentityResolver, MsGraphIdentityResolver>();
             services.AddSingleton<MoodleAdapter>();
+            services.AddSingleton<MsGraphAdapter>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
