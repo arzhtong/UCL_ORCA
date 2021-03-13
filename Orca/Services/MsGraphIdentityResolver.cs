@@ -8,9 +8,9 @@ namespace Orca.Services
 {
     public class MsGraphIdentityResolver : IIdentityResolver
     {
-        private readonly GraphHelper _graphHelper;
+        private readonly IGraphHelper _graphHelper;
 
-        public MsGraphIdentityResolver(GraphHelper graphHelper)
+        public MsGraphIdentityResolver(IGraphHelper graphHelper)
         {
             _graphHelper = graphHelper;
         }
