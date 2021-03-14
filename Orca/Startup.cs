@@ -33,8 +33,9 @@ namespace Orca
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
             services.Configure<DatabaseFields>(Configuration.GetSection("Orca:Database"));
-            services.AddSingleton<IGraphHelper, GraphHelper>();
-   
+            services.AddSingleton<GraphHelper>();
+            services.AddSingleton<IGraphHelper>(serviceFactory => serviceFactory.GetRequiredService<GraphHelper>());
+
             // Register the sharepoint manager
             services.AddSingleton<ISharepointManager, SharepointManager>();
             services.AddTransient<DatabaseConnect>();
