@@ -20,9 +20,9 @@ namespace Orca.Tools
         private readonly string _appId;
         private readonly string _tenantId;
         private readonly string _notificationUrl;
-        private ILogger<IGraphHelper> _logger;
+        private ILogger<GraphHelper> _logger;
 
-        public GraphHelper(IOptions<MSGraphSettings> msGraphSettings, ILogger<IGraphHelper> logger)
+        public GraphHelper(IOptions<MSGraphSettings> msGraphSettings, ILogger<GraphHelper> logger)
         {
             var settingsVal = msGraphSettings.Value;
             _appId = settingsVal.AppId;

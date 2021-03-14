@@ -13,7 +13,7 @@ namespace Orca.Services.Adapters
     {
         private readonly IEventAggregator _eventAggregator;
 
-        public MsGraphAdapter(IEventAggregator eventAggregator, GraphHelper graphHelper)
+        public MsGraphAdapter(IEventAggregator eventAggregator, IGraphHelper graphHelper)
         {
             _eventAggregator = eventAggregator;
         }
