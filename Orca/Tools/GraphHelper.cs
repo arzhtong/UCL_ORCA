@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Orca.Tools
 {
-    public class GraphHelper
+    public class GraphHelper: IGraphHelper
     {
         private static GraphServiceClient _graphClient;
         private readonly string _appId;
