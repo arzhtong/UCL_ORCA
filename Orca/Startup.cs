@@ -16,6 +16,8 @@ using Orca.Scheduling;
 using Orca.Tools;
 using Orca.Services.Adapters;
 using Orca.Database;
+using Microsoft.Extensions.Options;
+
 namespace Orca
 {
     public class Startup
@@ -53,6 +55,14 @@ namespace Orca
             services.AddSingleton<IIdentityResolver, MsGraphIdentityResolver>();
             services.AddSingleton<MoodleAdapter>();
             services.AddSingleton<MsGraphAdapter>();
+
+            // Register Resourcium adapter if apiKey configured
+            if (Configuration.GetValue<string>("Orca:Resourcium:ApiKey", null) != null)
+            {
+                services.Configure<ResourciumSettings>(Configuration.GetSection("Orca:Resourcium"));
+                services.AddSingleton<ResourciumAdapter>();
+            }
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -61,12 +71,12 @@ namespace Orca
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DatabaseConnect dbConnection, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<DatabaseFields> dbSettings, ILogger<Startup> logger)
         {
-            if (dbConnection.HasDatabase())
+            if (DatabaseConnect.HasDatabase(dbSettings.Value))
             {
                 logger.LogInformation("Initializing database schema");
-                dbConnection.CreateDatabase();
+                DatabaseConnect.CreateDatabase(dbSettings.Value, env);
             } else
             {
                 logger.LogWarning("Database credentials are missing. Application will run without connecting to a database. Engagement events will not be persisted");

@@ -21,20 +21,18 @@ namespace Orca.Database
         private string _uid;
         private string _password;
         private string _database;
-        private string _pathToCreationScript;
         private bool _hasDatabase = false;
         public bool _disposedValue;
         public MySqlConnection Connection { get; set; }
 
-        public DatabaseConnect(IOptions<DatabaseFields> settings, IHostEnvironment hostingEnvironment)
+        public DatabaseConnect(IOptions<DatabaseFields> settings)
         {
-            _pathToCreationScript = Path.Combine(hostingEnvironment.ContentRootPath, "Database", "OrcaDatabase.sql");
             var fields = settings.Value;
             _servername = fields.Servername;
             _uid = fields.Uid;
             _password = fields.Password;
             _database = fields.Database;
-            _hasDatabase = _servername != null && _uid != null && _password != null && _database != null;
+            _hasDatabase = HasDatabase(fields);
 
             if (_hasDatabase)
             {
@@ -43,16 +41,21 @@ namespace Orca.Database
                 Connection.Open();
             }
         }
-        public bool HasDatabase()
+
+        public static bool HasDatabase(DatabaseFields fields)
         {
-            return _hasDatabase;
+            return fields.Servername != null && fields.Uid != null && fields.Password != null && fields.Database != null;
         }
 
-        public void CreateDatabase()
+        public static void CreateDatabase(DatabaseFields settings, IHostEnvironment hostingEnvironment)
         {
-            var creationScript = File.ReadAllText(_pathToCreationScript);
+            var servername = settings.Servername;
+            var uid = settings.Uid;
+            var password = settings.Password;
+            var pathToCreationScript = Path.Combine(hostingEnvironment.ContentRootPath, "Database", "OrcaDatabase.sql");
+            var creationScript = File.ReadAllText(pathToCreationScript);
             // set Database to null in case it hasn't been created yet
-            using (var conn = new MySqlConnection($"Server = {_servername}; Database = {null}; Uid= {_uid}; Pwd= {_password}; SslMode=Preferred;"))
+            using (var conn = new MySqlConnection($"Server = {servername}; Database = {null}; Uid= {uid}; Pwd= {password}; SslMode=Preferred;"))
             {
                 conn.Open();
                 var sqlScript = new MySqlScript(conn, creationScript);
