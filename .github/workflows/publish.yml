@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PUBLISH_ARGS: Orca/Orca.csproj -c Release --self-contained
-      PUBLISH_BASE_PATH: Orca/bin/Release/net5.0
 
     steps:
     - uses: actions/checkout@v2
@@ -23,15 +22,18 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build
+
+    - name: Embed linux binaries into code so that Azure deployment script can update webapp with latest version
+      run: dotnet publish $PUBLISH_ARGS -r linux-x64 -o orca-azure-linux && (cd orca-azure-linux/ && zip -r ../orca-azure-linux .) && mv orca-azure-linux.zip Orca/Scripts/AzureResourceManager
     
     - name: Publish windows binaries
-      run: dotnet publish $PUBLISH_ARGS -r win-x64 && zip -r orca-windows ${PUBLISH_BASE_PATH}/win-x64/publish
+      run: dotnet publish $PUBLISH_ARGS -r win-x64 -o orca-windows && zip -r orca-windows ./orca-windows
     
     - name: Publish linux binaries
-      run: dotnet publish $PUBLISH_ARGS -r linux-x64 && zip -r orca-linux ${PUBLISH_BASE_PATH}/linux-x64/publish
+      run: dotnet publish $PUBLISH_ARGS -r linux-x64 -o orca-linux && zip -r orca-linux ./orca-linux
     
     - name: Publish macos binaries
-      run: dotnet publish $PUBLISH_ARGS -r osx-x64 && zip -r orca-macos ${PUBLISH_BASE_PATH}/osx-x64/publish
+      run: dotnet publish $PUBLISH_ARGS -r osx-x64 -o orca-macos && zip -r orca-macos ./orca-macos
     
     - name: Upload binaries as Release
       uses: ncipollo/release-action@v1

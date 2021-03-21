@@ -40,7 +40,7 @@ namespace Orca.Scheduling
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation($"Updating MsGraph subscription.");
+                _logger.LogDebug($"Updating MsGraph subscription.");
                 await CheckSubscriptionsAsync();
 
                 await Task.Delay(_dELAY_TIME_MS, stoppingToken);

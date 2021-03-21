@@ -54,7 +54,7 @@ namespace Orca.Services
                 {
                     // Check the corresponding list of this course according to Catalog.
                     string targetList = _courseCatalog.GetListNameForCourse(studentEvent.CourseID);
-                    _logger.LogInformation("Event aggregator will send event to list \"{0}\".", targetList);
+                    _logger.LogDebug("Event aggregator will send event to list \"{0}\".", targetList);
 
                     // Check whether the target list exist in ORCA SharePoint.
                     // Once the list has been created successful, do the next step.
@@ -66,7 +66,7 @@ namespace Orca.Services
                         List<string> list = CreateDefaultSharePointEventListSchema();
                         _sharePointManager.CreateList(targetList, description, list);
                     }
-                    _logger.LogInformation("List \"{0}\" is now exist and ready to store events.", targetList);
+                    _logger.LogDebug("List \"{0}\" is now exist and ready to store events.", targetList);
                     // Assign to different list by course ID.
                     SharepointListItem eventItem = PackEventItem(studentEvent);
                     bool addedEvent = await _sharePointManager.AddItemToList(targetList, eventItem);
@@ -113,7 +113,7 @@ namespace Orca.Services
             eventItem[EVENT_LIST_ACTIVITY_NAME] = studentEvent.ActivityName;
             eventItem[EVENT_LIST_TIMESTAMP] = studentEvent.Timestamp;
 
-            _logger.LogInformation("Event by {0} has been packed.", studentEvent.Student.FirstName);
+            _logger.LogDebug("Event by {0} has been packed.", studentEvent.Student.FirstName);
             return eventItem;
         }
 

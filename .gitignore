@@ -5,7 +5,8 @@
 
 # Project related
 appsettings.Production.json
-
+Orca/Scripts/AzureResourceManager/parameters.json
+Orca/Scripts/AzureResourceManager/orca-azure-linux.zip
 # Azure related
 .azure
 

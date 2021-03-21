@@ -37,7 +37,7 @@ namespace Orca.Scheduling
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation($"Updating Course Catalog.");
+                _logger.LogDebug($"Updating Course Catalog.");
 
                 await UpdateCourseCatalog();
 
