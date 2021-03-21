@@ -57,13 +57,12 @@ namespace Orca.Scheduling
 
         private async Task CheckSubscriptionsAsync()
         {
-
-            _logger.LogDebug($"Checking subscriptions {DateTime.Now.ToString("h:mm:ss.fff")}");
             var subscriptions = await _graphHelper.ListSubscriptions();
             _logger.LogDebug($"Current subscription count {subscriptions.Count()}");
 
             if (subscriptions.Count() == 0)
             {
+                _logger.LogDebug("Creating subscription...");
                 var newSubscription = await _graphHelper.CreateSubscription(_subscriptionMinutes);
             }
             else

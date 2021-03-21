@@ -10,11 +10,11 @@ namespace Orca.Tools
     {
         Task<User> GetUserAsync(string userId);
         Task<string> GetUserIdByMailAsync(string mail);
-        Task<CallRecord> GetCallRecordSessions(string callId);
-        //Task<Subscription> CreateSubscription(int minutes);
-        //void RenewSubscription(Subscription subscription, int minutes);
-        //void DeleteSubscription(String subscriptionId);
-        //Task<List<Subscription>> ListSubscriptions();
+        Task<string> GetCallRecordSessions(string callId);
+        Task<Subscription> CreateSubscription(int minutes);
+        void RenewSubscription(Subscription subscription, int minutes);
+        void DeleteSubscription(String subscriptionId);
+        Task<List<Subscription>> ListSubscriptions();
 
 
     }

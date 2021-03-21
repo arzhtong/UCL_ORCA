@@ -29,18 +29,14 @@ namespace Orca.Controllers
     {
         private readonly MSGraphSettings _config;
         private static Dictionary<string, Subscription> _subscriptions = new Dictionary<string, Subscription>();
-        private IGraphHelper _graphHelper;
         private ILogger<GraphHelper> _logger;
         private readonly MsGraphAdapter _graphAdapter;
-        private ICourseCatalog _courseCatalog;
 
-        public NotificationsController(IOptions<MSGraphSettings> msGraphSettings, IGraphHelper graphHelper, ILogger<GraphHelper> logger, MsGraphAdapter msGraphAdapter, ICourseCatalog courseCatalog)
+        public NotificationsController(IOptions<MSGraphSettings> msGraphSettings, ILogger<GraphHelper> logger, MsGraphAdapter msGraphAdapter)
         {
             this._config = msGraphSettings.Value;
-            this._graphHelper = graphHelper;
             this._logger = logger;
             _graphAdapter = msGraphAdapter;
-            _courseCatalog = courseCatalog;
         }
 
         [HttpPost]
@@ -65,39 +61,7 @@ namespace Orca.Controllers
                 foreach (var notification in notifications.Items)
                 {
                     _logger.LogDebug($"Received notification: '{notification.Resource}', {notification.ResourceData?.Id}");
-                    var callRecord = await _graphHelper.GetCallRecordSessions(notification.ResourceData?.Id);
-                    var joinWebUrl = (callRecord != null ? callRecord.JoinWebUrl : null);
-                    if (joinWebUrl != null && _courseCatalog.CheckJoinWebURLExist(joinWebUrl))
-                    {
-                        await _courseCatalog.UpdateInMemoryMapping();
-                        string targetCourseID = _courseCatalog.GetCourseIDForJoinWebURL(joinWebUrl);
-                        foreach (Session session in callRecord.Sessions)
-                        {
-                            ParticipantEndpoint caller = (ParticipantEndpoint)session.Caller;
-                            var user = await _graphHelper.GetUserAsync(caller.Identity.User.Id);
-                            if (user != null)
-                            {
-                                StudentEvent studentEvent = new StudentEvent
-                                {
-                                    CourseID = targetCourseID.ToUpper(),
-                                    Timestamp = ((DateTimeOffset)session.StartDateTime).UtcDateTime,
-                                    EventType = EventType.Attendance,
-                                    ActivityType = "Meeting",
-                                    ActivityName = "Weekly Lecture",
-                                    Student = new Student
-                                    {
-                                        Email = user.Mail,
-                                        FirstName = user.GivenName,
-                                        LastName = user.Surname,
-                                        ID = user.Id
-                                    }
-                                };
-                                _logger.LogDebug("Student to be processed: " + studentEvent.ToString());
-                                await _graphAdapter.ProcessEvents(studentEvent);
-                            }
-                        }
-                    }
-                    
+                    await _graphAdapter.ProcessEvents(notification.ResourceData?.Id);
                 }
             }
 

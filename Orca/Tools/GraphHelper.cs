@@ -11,6 +11,7 @@ using System.Security;
 using Microsoft.Identity.Client;
 using Microsoft.Graph.Auth;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Orca.Tools
 {
@@ -93,16 +94,18 @@ namespace Orca.Tools
             }
         }
 
-        public async Task<CallRecord> GetCallRecordSessions(string callId)
+        public async Task<string> GetCallRecordSessions(string callId)
         {
             try
             {
                 // GET /groups/{groupId}/Members
-                return await _graphClient.Communications
+                var result = await _graphClient.Communications
                     .CallRecords[callId]
                     .Request()
                     .Expand("sessions")
                     .GetAsync();
+                var json = JsonConvert.SerializeObject(result);
+                return json;
             }
             catch (ServiceException ex)
             {
