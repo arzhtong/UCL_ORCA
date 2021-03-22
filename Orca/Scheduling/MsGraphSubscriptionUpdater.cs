@@ -21,10 +21,10 @@ namespace Orca.Scheduling
         private const int _dELAY_TIME_MS = 5 * 60 * 1000;
         private const int _subscriptionMinutes = 15;
         private readonly ILogger<MsGraphSubscriptionUpdater> _logger;
-        private GraphHelper _graphHelper;
+        private IGraphHelper _graphHelper;
         private readonly MSGraphSettings _config;
 
-        public MsGraphSubscriptionUpdater(IOptions<MSGraphSettings> msGraphSettings,ILogger<MsGraphSubscriptionUpdater> logger, GraphHelper graphHelper)
+        public MsGraphSubscriptionUpdater(IOptions<MSGraphSettings> msGraphSettings,ILogger<MsGraphSubscriptionUpdater> logger, IGraphHelper graphHelper)
         {
             this._config = msGraphSettings.Value;
             _logger = logger;
@@ -55,7 +55,7 @@ namespace Orca.Scheduling
             _logger.LogInformation($"MsGraphSubscriptionUpdater background task is stopping.");
         }
 
-        private async Task CheckSubscriptionsAsync()
+        public async Task CheckSubscriptionsAsync()
         {
             var subscriptions = await _graphHelper.ListSubscriptions();
             _logger.LogDebug($"Current subscription count {subscriptions.Count()}");

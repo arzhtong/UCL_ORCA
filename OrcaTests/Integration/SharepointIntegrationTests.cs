@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.SharePoint.Client;
 using Orca.Entities;
 using Orca.Services;
@@ -159,7 +159,7 @@ namespace OrcaTests.Integration
         public void Dispose()
         {
             var spSettings = SharepointSettingsFromEnv();
-            
+
             using (var _authenticationManager = new PnP.Framework.AuthenticationManager())
             {
                 using (var context = _authenticationManager.GetACSAppOnlyContext(spSettings.SharepointUrl, spSettings.ClientId, spSettings.ClientSecret))

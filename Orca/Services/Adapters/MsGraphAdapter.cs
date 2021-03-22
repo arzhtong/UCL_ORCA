@@ -25,13 +25,15 @@ namespace Orca.Services.Adapters
             _logger = logger;
             _graphHelper = graphHelper;
             _courseCatalog = courseCatalog;
-    }
+
+        }
 
         public async Task ProcessEvents(string callRecordId)
         {
 
             var callRecordString = await _graphHelper.GetCallRecordSessions(callRecordId);
             var callRecord = JsonConvert.DeserializeObject<Entities.CallRecord>(callRecordString);
+
             var organizerId = (callRecord != null ? callRecord.Organizer.User.Id : null);
             var joinWebUrl = (callRecord != null ? callRecord.JoinWebUrl : null);
             if (joinWebUrl != null && _courseCatalog.CheckJoinWebURLExist(joinWebUrl))
@@ -42,6 +44,7 @@ namespace Orca.Services.Adapters
                 {
                     var caller = session.Caller;
                     var user = await _graphHelper.GetUserAsync(caller.Identity.User.Id);
+
                     if (user != null && user.Id != organizerId)
                     {
                         StudentEvent studentEvent = new StudentEvent

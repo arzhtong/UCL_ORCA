@@ -1,4 +1,4 @@
-﻿using Microsoft.Graph;
+using Microsoft.Graph;
 using Microsoft.Graph.CallRecords;
 using System;
 using System.Collections.Generic;
