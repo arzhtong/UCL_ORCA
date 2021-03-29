@@ -31,18 +31,19 @@ $domain = Read-Host "Your public host URL through which this application is expo
 $appsettings = $appsettings -replace "//`"Domain`": `"`"", "`"Domain`": `"$domain`""
 
 #Replace values for database
-$enableDatabase = Read-Host "Would you like to connect ORCA to a MySQL database to enable analytics?`n([Y]es/[N])o"
-If ($enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "YES") {
+$enableDatabase = Read-Host "Would you like to connect ORCA to a PostgreSQL database to enable analytics?`n([Y]es/[N])o"
+$enableDatabase = $enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "YES"
+If ($enableDatabase) {
     $serverName = Read-Host "Database Server Name"
     $appsettings = $appsettings -replace "//`"Servername`": `"`"", "`"Servername`": `"$serverName`""
 	
-    $Uid = Read-Host "Database User ID"
-    $appsettings = $appsettings -replace "//`"Uid`": `"`"", "`"Uid`": `"$Uid`""
+    $username = Read-Host "Database Username"
+    $appsettings = $appsettings -replace "//`"Username`": `"`"", "`"Username`": `"$username`""
 
     $Password = Read-Host "Database Password"
     $appsettings = $appsettings -replace "//`"Password`": `"`"", "`"Password`": `"$Password`""	
 	
-	$Database = Read-Host "Database name"
+    $Database = Read-Host "Database name"
     $appsettings = $appsettings -replace "//`"Database`": `"`"", "`"Database`": `"$Database`""	
 	
 }
@@ -50,6 +51,12 @@ If ($enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "Y
 # Write to appsettings.json
 $configuredAppsettingsPath = Join-Path (Get-ScriptDirectory) '../appsettings.json'
 Set-Content -Path $configuredAppsettingsPath -Value $appsettings
-Write-Host "Configuration saved to appsettings.json"
+Write-Host "Configuration saved to $configuredAppsettingsPath"
 
 
+If ($enableDatabase) {
+    $powerbiGenerationScriptPath = Join-Path (Get-ScriptDirectory) 'GeneratePowerBiDashboard.ps1'
+    Write-Host "Configuring Power BI Dashboard for analytics to connect to db host: $serverName and database: $Database"
+    Write-Host "Make sure to provide the Username '$username@$Database' and previously configured Database Password when opening the Power BI dashboard"
+    & $powerbiGenerationScriptPath "$serverName" "$Database"
+}

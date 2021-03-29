@@ -1,27 +1,12 @@
 #!/bin/bash
 TABLE="student"
+mkdir -p ./Record_data/Student_information
 
-select_details="select * from ${TABLE} where id = $1"
-
-$2 -h$3 -P$4 -u$5 -p$6 $7 -e "${select_details}" > 1.log << EOF
-EOF
-
-echo "Downloading student $1 data from ${DBNAME} in mysql..."
-sleep 1
-echo "now converting it to csv file..."
-sleep 1
-
-#cat the 1.log file and convert it to csv file
-cat 1.log | while read line
-do
-echo $line | tr " " ","
-done > ../../Record_data/Student_information/$1"_DETAILS_GDPR_RECORD".csv
-
-sleep 1
-#remove the temporal file 1.log
-rm -rf 1.log
+EXPORT_PATH=./Record_data/Student_information/$1"_DETAILS_GDPR_RECORD".csv
+echo "Downloading student $1 data from $7 in pgsql..."
+select_details="select * from ${TABLE} where id = '$1'"
+PGPASSWORD=$6 $2 -h $3 -p $4 -U $5 -d $7 -c "\copy (${select_details}) TO ${EXPORT_PATH} CSV HEADER"
 
 #echo the infomation
-echo "Convert ${DBNAME} into $1_DETAILS_GDPR_RECORD.csv."
-sleep 1
+echo "Convert $7 into $1_DETAILS_GDPR_RECORD.csv."
 echo "Done successfully! Please check the file!"

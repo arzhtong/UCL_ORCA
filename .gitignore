@@ -7,6 +7,8 @@
 appsettings.Production.json
 Orca/Scripts/AzureResourceManager/parameters.json
 Orca/Scripts/AzureResourceManager/orca-azure-linux.zip
+Orca/Scripts/OrcaDashboard.pbit
+
 # Azure related
 .azure
 

@@ -7,12 +7,12 @@ namespace Orca.Database
 {
     public class DatabaseFields
     {
-        public String Servername { get; set; }
+        public string Servername { get; set; }
 
-        public String Uid { get; set; }
+        public string Username { get; set; }
 
-        public String Password { get; set; }
+        public string Password { get; set; }
 
-        public String Database { get; set; }
+        public string Database { get; set; }
     }
 }

@@ -36,7 +36,7 @@
         "databaseName": {
             "type": "string",
             "metadata": {
-                "definition": "The name that will be given to the database (e.g. orcadb). Must be unique as it will form the domain [databaseName].mysql.database.azure.com"
+                "definition": "The name that will be given to the database (e.g. orcadb). Must be unique as it will form the domain [databaseName].postgres.database.azure.com"
             }
         },
         "databaseUsername": {
@@ -76,13 +76,13 @@
         },
         "databaseVersion": {
             "type": "string",
-            "defaultValue": "8.0"
+            "defaultValue": "11"
         },
         "databaseSkuName": {
             "type": "string",
             "defaultValue": "B_Gen5_1",
             "metadata": {
-                "definition": "For information about Azure MySQL SKU tiers pricing options, see https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers"
+                "definition": "For information about Azure PostgreSQL SKU tiers pricing options, see https://docs.microsoft.com/en-us/azure/postgresql/concepts-pricing-tiers"
             }
         },
         "databaseSkuTier": {
@@ -141,7 +141,7 @@
         "dbAppSettings": [
             {
                 "name": "Orca__Database__Database",
-                "value": "ORCA_DB"
+                "value": "[parameters('databaseName')]"
             },
             {
                 "name": "Orca__Database__Password",
@@ -149,10 +149,10 @@
             },
             {
                 "name": "Orca__Database__Servername",
-                "value": "[if(empty(parameters('databaseName')),json('null'),concat(parameters('databaseName'), '.mysql.database.azure.com'))]"
+                "value": "[if(empty(parameters('databaseName')),json('null'),concat(parameters('databaseName'), '.postgres.database.azure.com'))]"
             },
             {
-                "name": "Orca__Database__Uid",
+                "name": "Orca__Database__Username",
                 "value": "[if(empty(parameters('databaseUsername')),json('null'),concat(parameters('databaseUsername'), '@', parameters('databaseName')))]"
             }
         ]
@@ -221,47 +221,47 @@
                 "Name": "[parameters('skuCode')]"
             }
         },
-        {
-            "apiVersion": "2017-12-01",
-            "kind": "",
-            "location": "[parameters('location')]",
-            "name": "[parameters('databaseName')]",
-            "condition": "[not(empty(parameters('databasePassword')))]",
-            "properties": {
-                "version": "[parameters('databaseVersion')]",
-                "administratorLogin": "[parameters('databaseUsername')]",
-                "administratorLoginPassword": "[parameters('databasePassword')]",
-                "storageProfile": {
-                    "storageMB": "[parameters('databaseSizeMB')]",
-                    "backupRetentionDays": "[parameters('backupRetentionDays')]",
-                    "geoRedundantBackup": "Disabled",
-                    "storageAutoGrow": "Disabled"
-                },
-                "previewFeature": "",
-                "infrastructureEncryption": "Disabled"
-            },
-            "sku": {
-                "name": "[parameters('databaseSkuName')]",
-                "tier": "[parameters('databaseSkuTier')]",
-                "capacity": "[parameters('databaseSkuCapacity')]",
-                "size": "[parameters('databaseSizeMB')]",
-                "family": "[parameters('databaseSkuFamily')]"
-            },
-            "tags": {},
-            "type": "Microsoft.DBforMySQL/servers"
+      {
+        "apiVersion": "2017-12-01",
+        "kind": "",
+        "location": "[parameters('location')]",
+        "name": "[parameters('databaseName')]",
+        "condition": "[not(empty(parameters('databasePassword')))]",
+        "properties": {
+          "version": "[parameters('databaseVersion')]",
+          "administratorLogin": "[parameters('databaseUsername')]",
+          "administratorLoginPassword": "[parameters('databasePassword')]",
+          "storageProfile": {
+            "storageMB": "[parameters('databaseSizeMB')]",
+            "backupRetentionDays": "[parameters('backupRetentionDays')]",
+            "geoRedundantBackup": "Disabled",
+            "storageAutoGrow": "Disabled"
+          },
+          "previewFeature": "",
+          "infrastructureEncryption": "Disabled"
         },
-        {
-            "type": "Microsoft.DBforMySQL/servers/firewallRules",
-            "apiVersion": "2017-12-01",
-            "name": "[concat(parameters('databaseName'), '/AllowAllWindowsAzureIps')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', parameters('databaseName'))]"
-            ],
-            "condition": "[not(empty(parameters('databasePassword')))]",
-            "properties": {
-                "startIpAddress": "0.0.0.0",
-                "endIpAddress": "0.0.0.0"
-            }
+        "sku": {
+          "name": "[parameters('databaseSkuName')]",
+          "tier": "[parameters('databaseSkuTier')]",
+          "capacity": "[parameters('databaseSkuCapacity')]",
+          "size": "[parameters('databaseSizeMB')]",
+          "family": "[parameters('databaseSkuFamily')]"
+        },
+        "tags": {},
+        "type": "Microsoft.DBforPostgreSQL/servers"
+      },
+      {
+        "type": "Microsoft.DBforPostgreSQL/servers/firewallRules",
+        "apiVersion": "2017-12-01",
+        "name": "[concat(parameters('databaseName'), '/AllowAllWindowsAzureIps')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('databaseName'))]"
+        ],
+        "condition": "[not(empty(parameters('databasePassword')))]",
+        "properties": {
+          "startIpAddress": "0.0.0.0",
+          "endIpAddress": "0.0.0.0"
         }
+      }
     ]
 }

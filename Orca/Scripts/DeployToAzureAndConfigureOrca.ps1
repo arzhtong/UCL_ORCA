@@ -38,11 +38,12 @@ $msGraphClientSecret = Read-Host "Your Azure ClientSecret with Microsoft Graph A
 $armParametersTemplate = $armParametersTemplate -replace "MS_GRAPH_CLIENT_SECRET", "`"$msGraphClientSecret`""
 
 #Replace values for database
-$enableDatabase = Read-Host "Would you like to deploy an Azure MySQL database to enable analytics (this will incur additional charges)?`n([Y]es/[N])o"
-If ($enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "YES") {
+$enableDatabase = Read-Host "Would you like to deploy an Azure PostgreSQL database to enable analytics (this will incur additional charges)?`n([Y]es/[N])o"
+$enableDatabase = $enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "YES"
+If ($enableDatabase) {
     Write-Host "Please provide the following database settings:"
 
-    $databaseName = Read-Host "The name that will be given to the database (e.g. orcadb). Must be unique as it will form the domain [databaseName].mysql.database.azure.com"
+    $databaseName = Read-Host "The name that will be given to the database (e.g. orcadb). Must be unique as it will form the domain [databaseName].postgres.database.azure.com"
     $armParametersTemplate = $armParametersTemplate -replace "DB_NAME", "`"$databaseName`""
 
     $databasePassword = Read-Host "Database Password"
@@ -53,6 +54,7 @@ If ($enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "Y
 $configuredArmParametersPath = Join-Path (Get-ScriptDirectory) 'AzureResourceManager/parameters.json'
 Set-Content -Path $configuredArmParametersPath -Value $armParametersTemplate
 Write-Host "Configuration saved to $configuredArmParametersPath"
+
 Write-Host "Beginning deployment to Azure based on generated configuration"
 
 # Create resource group with same name as webapp
@@ -63,3 +65,13 @@ $armTemplatePath = Join-Path (Get-ScriptDirectory) 'AzureResourceManager/templat
 $zippedBinariesPath = Join-Path (Get-ScriptDirectory) 'AzureResourceManager/orca-azure-linux.zip'
 az deployment group create --name "${webAppName}Deployment" --resource-group "$webAppName" --template-file "$armTemplatePath" --parameters "$configuredArmParametersPath"
 az webapp deployment source config-zip -n "$webAppName" -g "$webAppName" --src "$zippedBinariesPath"
+
+Write-Host "Deployment Complete"
+
+If ($enableDatabase) {
+    $powerbiGenerationScriptPath = Join-Path (Get-ScriptDirectory) 'GeneratePowerBiDashboard.ps1'
+    $dbHost = "$databaseName.postgres.database.azure.com"
+    Write-Host "Configuring Power BI Dashboard for analytics to connect to db host: $databaseName.postgres.database.azure.com and database: $databaseName"
+    Write-Host "Make sure to provide the Username 'orca_admin@$databaseName' and previously configured Database Password when opening the Power BI dashboard"
+    & $powerbiGenerationScriptPath "$dbHost" "$databaseName"
+}
