@@ -27,7 +27,17 @@ Then select "Create" and choose to trust the application.
 
 
 ### Register an Azure Application with MS Teams access for ORCA
-TODO
+Navigate to [this URL](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) and register a new application. When asked "Who can use this application or access this API?" choose "Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)".  
+After completing the registrations, copy the *Application (client) ID* and the *Directory (tenant) ID* and keep track of them as you will use them later.  
+Go to Certificates & Secrets page, create a Client Secret and copy the value as you did for the client ID and tenant ID. **⚠️ (Copy the value as soon as you create the Client Secret because you won't be able to see the value again.)**  
+Go to the application's API Permissions page.  
+Click Add Permission 🠊 Microsoft Graph 🠊 Application Permissions and add the following permissions:
+1. CallRecords.Read.All
+2. OnlineMeetings.Read.All
+3. User.Read.All  
+
+After that, click the "Grant admin consent for [YOUR_ENVIRONMENT]" button.  
+**⚠️ If the button is greyed out, a user with admin rights has to sign in and press the button instead**
 
 
 ## Deployment and Configuration
@@ -45,3 +55,6 @@ Once run the script will ask you to fill in the required settings to deploy ORCA
 Download the zipped ORCA binaries for your OS from the [Releases](https://github.com/Beyhum/Orca/releases) page. Once unzipped, under the `orca-{os_name}/Scripts` directory (e.g.orca-win-x64/Scripts) you will find a Powershell script named `ConfigureOrcaAppSettings.ps1`.  
 Once run the script will ask you to fill in the required settings to configure the `orca-{os_name}/appsettings.json` file, such as the [Sharepoint Client Id and Client Secret that you generated in earlier steps](#Register-a-Sharepoint-Application-for-ORCA).  
 After configuring the application, you can run it through the executable under `orca-{os_name}/Orca.exe`. For a more robust setup consider running ORCA behind a reverse proxy (e.g. [Nginx](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/linux-nginx?view=aspnetcore-5.0#configure-nginx)).
+
+### Post Deployment configuration for MS Teams access
+After deploying ORCA, you have to add the public host URL(or the domain of the web app you setup on Azure) of ORCA to the app you registered on Azure that has MS Teams access. To do that, go to Azure Active Directory 🠊 App Registrations 🠊 [YOUR_APP] 🠊 Authentication and add the URL to the Redirect URIs.
