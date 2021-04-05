@@ -30,6 +30,10 @@ $appsettings = $appsettings -replace "//`"ClientSecret`": `"YOUR_MS_GRAPH_CLIENT
 $domain = Read-Host "Your public host URL through which this application is exposed (e.g. https://myorcadeployment.azurewebsites.net)"
 $appsettings = $appsettings -replace "//`"Domain`": `"`"", "`"Domain`": `"$domain`""
 
+#Replace values for Caliper settings
+$caliperApiKey = Read-Host "The Caliper API Key used by your Moodle server to securely notify ORCA about student interactions (needed when configuring the Caliper plugin for your Moodle server)"
+$appsettings = $appsettings -replace "//`"ApiKey`": `"`"", "`"ApiKey`": `"$caliperApiKey`""
+
 #Replace values for database
 $enableDatabase = Read-Host "Would you like to connect ORCA to a PostgreSQL database to enable analytics?`n([Y]es/[N])o"
 $enableDatabase = $enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "YES"
@@ -53,6 +57,10 @@ $configuredAppsettingsPath = Join-Path (Get-ScriptDirectory) '../appsettings.jso
 Set-Content -Path $configuredAppsettingsPath -Value $appsettings
 Write-Host "Configuration saved to $configuredAppsettingsPath"
 
+Write-Host "When configuring the Caliper plugin on your Moodle server, make sure to set the following settings:"
+Write-Host "'Event Store URL': https://$domain/api/events/caliper"
+Write-Host "'API key': the Caliper API Key you provided"
+Write-Host "'Batch size': 100"
 
 If ($enableDatabase) {
     $powerbiGenerationScriptPath = Join-Path (Get-ScriptDirectory) 'GeneratePowerBiDashboard.ps1'

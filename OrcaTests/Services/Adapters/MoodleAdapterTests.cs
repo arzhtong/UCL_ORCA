@@ -72,7 +72,7 @@ namespace OrcaTests.Services.Adapters
         }
 
         [Fact]
-        public async Task ProcessEventsSetsEventTypeToAttendanceForZoomEvents()
+        public async Task ProcessEventsSetsEventTypeToAttendanceForZoomOrTeamsEvents()
         {
             var eventAggregator = new MockEventAggregator();
             var moodleAdapter = new MoodleAdapter(eventAggregator, new MockIdentityResolver(), CreateLogger());

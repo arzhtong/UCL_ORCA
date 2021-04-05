@@ -17,6 +17,7 @@ using Orca.Tools;
 using Orca.Services.Adapters;
 using Orca.Database;
 using Microsoft.Extensions.Options;
+using Orca.Controllers;
 
 namespace Orca
 {
@@ -34,6 +35,7 @@ namespace Orca
         {
             services.Configure<SharepointSettings>(Configuration.GetSection("Orca:Sharepoint"));
             services.Configure<MSGraphSettings>(Configuration.GetSection("Orca:MsGraph"));
+            services.Configure<CaliperSettings>(Configuration.GetSection("Orca:Caliper"));
             services.Configure<DatabaseFields>(Configuration.GetSection("Orca:Database"));
             services.AddSingleton<GraphHelper>();
             services.AddSingleton<IGraphHelper>(serviceFactory => serviceFactory.GetRequiredService<GraphHelper>());
@@ -91,6 +93,7 @@ namespace Orca
 
             if (!env.IsDevelopment())
             {
+                app.UseHsts();
                 app.UseHttpsRedirection();
             }
 

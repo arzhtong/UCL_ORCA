@@ -26,6 +26,9 @@
         "tenantId": {
             "value": TENANT_ID
         },
+        "caliperApiKey": {
+            "value": CALIPER_API_KEY
+        },
         "databaseName": {
             "value": DB_NAME
         },

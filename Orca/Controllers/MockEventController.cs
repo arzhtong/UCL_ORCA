@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Orca.Database;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Orca.Controllers
 {
@@ -15,17 +17,22 @@ namespace Orca.Controllers
     public class MockEventController : ControllerBase
     {
         private readonly IEventAggregator _eventAggregator;
-        // IEventAggregator is the interface of event aggregator.
+        private readonly bool _enabled;
 
-        public MockEventController(IEventAggregator eventAggregator)
+        public MockEventController(IEventAggregator eventAggregator, IWebHostEnvironment env)
         {
             // Passing event aggregator to event controller.
             _eventAggregator = eventAggregator;
+            _enabled = env.IsDevelopment();
         }
 
         [HttpGet]
-        public async Task<StudentEvent> GenerateEvent()
+        public async Task<IActionResult> GenerateEvent()
         {
+            if (!_enabled)
+            {
+                return NotFound();
+            }
             StudentEvent testEvent = new StudentEvent
             {
                 CourseID = "COMP0199", // Course ID Upper case.
@@ -35,16 +42,14 @@ namespace Orca.Controllers
                 ActivityName = "Weekly Lecture",
                 Student = new Student 
                 { 
-                    Email = "vcdin.zard@ucldev03.onmicrosoft.com",
+                    Email = "vcdin.zard@example.com",
                     FirstName = "Vcdin",
                     LastName = "Zard",
                     ID = "202001955"
                 }
             };
             await _eventAggregator.ProcessEvent(testEvent);
-            // Print event info in console.
-            return testEvent;
-            // Get response on the swagger UI.
+            return Ok(testEvent);
         }
 
     }

@@ -37,6 +37,10 @@ $armParametersTemplate = $armParametersTemplate -replace "TENANT_ID", "`"$tenant
 $msGraphClientSecret = Read-Host "Your Azure ClientSecret with Microsoft Graph Access"
 $armParametersTemplate = $armParametersTemplate -replace "MS_GRAPH_CLIENT_SECRET", "`"$msGraphClientSecret`""
 
+#Replace values for Caliper settings
+$caliperApiKey = Read-Host "The Caliper API Key used by your Moodle server to securely notify ORCA about student interactions (needed when configuring the Caliper plugin for your Moodle server)"
+$armParametersTemplate = $armParametersTemplate -replace "CALIPER_API_KEY", "`"$caliperApiKey`""
+
 #Replace values for database
 $enableDatabase = Read-Host "Would you like to deploy an Azure PostgreSQL database to enable analytics (this will incur additional charges)?`n([Y]es/[N])o"
 $enableDatabase = $enableDatabase.ToUpper() -match "Y" -or $enableDatabase.ToUpper() -match "YES"
@@ -46,7 +50,7 @@ If ($enableDatabase) {
     $databaseName = Read-Host "The name that will be given to the database (e.g. orcadb). Must be unique as it will form the domain [databaseName].postgres.database.azure.com"
     $armParametersTemplate = $armParametersTemplate -replace "DB_NAME", "`"$databaseName`""
 
-    $databasePassword = Read-Host "Database Password"
+    $databasePassword = Read-Host "Database Password (at least 8 characters long, must contain uppercase characters, lowercase lowercase character, and digits number or special characters)"
     $armParametersTemplate = $armParametersTemplate -replace "DB_PASSWORD", "`"$databasePassword`""	
 }
 
@@ -67,6 +71,11 @@ az deployment group create --name "${webAppName}Deployment" --resource-group "$w
 az webapp deployment source config-zip -n "$webAppName" -g "$webAppName" --src "$zippedBinariesPath"
 
 Write-Host "Deployment Complete"
+
+Write-Host "When configuring the Caliper plugin on your Moodle server, make sure to set the following settings:"
+Write-Host "'Event Store URL': https://$webAppName.azurewebsites.net/api/events/caliper"
+Write-Host "'API key': $caliperApiKey"
+Write-Host "'Batch size': 100"
 
 If ($enableDatabase) {
     $powerbiGenerationScriptPath = Join-Path (Get-ScriptDirectory) 'GeneratePowerBiDashboard.ps1'
